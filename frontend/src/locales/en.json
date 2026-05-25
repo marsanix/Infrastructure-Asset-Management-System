@@ -1,0 +1,222 @@
+{
+  "app": {
+    "name": "IAMS",
+    "title": "Infrastructure Asset Management System"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "assets": "Asset Management",
+    "employees": "Employee Management",
+    "departments": "Department Management",
+    "locations": "Location Management",
+    "categories": "Category Management",
+    "brands": "Brand Management",
+    "models": "Model Management",
+    "incidents": "Incident Management",
+    "changes": "Change Management",
+    "problems": "Problem Management",
+    "requests": "Request Management",
+    "reports": "Reports",
+    "accounts": "Account Management",
+    "auditLogs": "Audit Log",
+    "groups": {
+      "asset": "Asset",
+      "itsm": "ITSM",
+      "reporting": "Reporting",
+      "admin": "Admin"
+    }
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Sign In",
+    "invalidCredentials": "Invalid username or password",
+    "subtitle": "Sign in to your account to continue",
+    "copyright": "© {year} IAMS. All rights reserved."
+  },
+  "validate": {
+    "usernameRequired": "Username is required",
+    "usernameTooShort": "Username is too short",
+    "passwordRequired": "Password is required",
+    "minChars": "Min {n} characters",
+    "mustContainUppercase": "Must contain uppercase letter",
+    "mustContainDigit": "Must contain a digit",
+    "mustContainSpecial": "Must contain a special character"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "confirm": "Confirm",
+    "actions": "Actions",
+    "status": "Status",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "active": "Active",
+    "inactive": "Inactive",
+    "locked": "Locked",
+    "unassigned": "Unassigned",
+    "back": "Back",
+    "apply": "Apply",
+    "allStatus": "All Status",
+    "noHistory": "No history yet.",
+    "deleteConfirmTitle": "Confirm Delete",
+    "deleteCannotUndo": "This action cannot be undone.",
+    "yes": "Yes",
+    "no": "No",
+    "number": "Number",
+    "title": "Title",
+    "type": "Type",
+    "priority": "Priority",
+    "severity": "Severity",
+    "description": "Description",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "username": "Username",
+    "password": "Password",
+    "fullName": "Full Name",
+    "time": "Time",
+    "module": "Module",
+    "action": "Action",
+    "account": "Account",
+    "ip": "IP",
+    "recordId": "Record ID",
+    "allModules": "All Modules",
+    "allActions": "All Actions",
+    "exportCsv": "Export CSV",
+    "exportExcel": "Export Excel",
+    "units": "units"
+  },
+  "pagination": {
+    "info": "{from}–{to} of {total} items"
+  },
+  "asset": {
+    "assetTag": "Asset Tag",
+    "serialNumber": "Serial Number",
+    "poNumber": "PO Number",
+    "model": "Model",
+    "location": "Location",
+    "employee": "Assigned User",
+    "status": "Status",
+    "purchaseDate": "Purchase Date",
+    "warrantyMonths": "Warranty (months)",
+    "warrantyMonthsAbbr": "mo",
+    "osLicense": "OS License",
+    "notes": "Notes",
+    "brand": "Brand",
+    "category": "Category",
+    "assignedTo": "Assigned To",
+    "ipAddress": "IP Address",
+    "macAddress": "MAC Address",
+    "hostname": "Hostname",
+    "vlan": "VLAN",
+    "warrantyStatus": "Warranty Status",
+    "expired": "Expired",
+    "monthsRemaining": "{n} months remaining",
+    "months": "{n} months",
+    "statuses": {
+      "Active": "Active",
+      "Available": "Available",
+      "Repair": "Under Repair",
+      "Disposed": "Disposed"
+    }
+  },
+  "assetList": {
+    "eyebrow": "Asset Management",
+    "createButton": "Create Asset",
+    "searchPlaceholder": "Search tag, serial, PO...",
+    "deleteConfirmMessage": "Delete asset {tag}? This action cannot be undone.",
+    "deleteSuccess": "Asset {tag} deleted successfully"
+  },
+  "assetForm": {
+    "createTitle": "Create Asset",
+    "editTitle": "Edit Asset",
+    "backToAssets": "← Assets",
+    "assetInfo": "Asset Information",
+    "purchaseWarranty": "Purchase & Warranty",
+    "notes": "Notes",
+    "selectModel": "Select model...",
+    "selectLocation": "Select location...",
+    "createButton": "Create Asset"
+  },
+  "assetDetail": {
+    "backToAssets": "← Assets",
+    "defaultTitle": "Asset Detail",
+    "assetInfo": "Asset Information",
+    "purchaseWarranty": "Purchase & Warranty",
+    "networkDetails": "Network Details",
+    "notes": "Notes",
+    "changeHistory": "Change History",
+    "deleteConfirmMessage": "Delete asset {tag}? This action cannot be undone."
+  },
+  "dashboard": {
+    "eyebrow": "Overview",
+    "assetStatus": "Asset Status",
+    "itsmOverview": "ITSM Overview",
+    "openIncidents": "Open Incidents",
+    "pendingChanges": "Pending Changes",
+    "openRequests": "Open Requests",
+    "warrantyExpiring": "Warranty Expiring Soon",
+    "warrantyPlaceholder": "Assets with warranty expiring in the next 30 days will appear here."
+  },
+  "itsm": {
+    "eyebrow": "ITSM",
+    "searchPlaceholder": "Search {module}...",
+    "incidents": {
+      "title": "Incidents",
+      "createTitle": "Create Incident"
+    },
+    "changes": {
+      "title": "Changes",
+      "createTitle": "Create Change Request"
+    },
+    "problems": {
+      "title": "Problems",
+      "createTitle": "Create Problem"
+    },
+    "requests": {
+      "title": "Service Requests",
+      "createTitle": "Create Service Request"
+    }
+  },
+  "account": {
+    "title": "Accounts",
+    "createTitle": "Create Account",
+    "editTitle": "Edit Account",
+    "resetPw": "Reset PW",
+    "resetPwTitle": "Reset Password",
+    "resetPwFor": "Reset password for {username}",
+    "newPassword": "New Password",
+    "failedReset": "Failed to reset password",
+    "administrator": "Administrator",
+    "user": "User"
+  },
+  "audit": {
+    "eyebrow": "Admin",
+    "readOnly": "Read-only — audit logs cannot be modified."
+  },
+  "report": {
+    "eyebrow": "Reporting",
+    "searchPlaceholder": "Search asset tag, serial...",
+    "failedLoad": "Failed to load report",
+    "exportFailed": "Export failed",
+    "underRepair": "Under Repair"
+  },
+  "master": {
+    "eyebrow": "Master Data",
+    "deleteConfirmMessage": "Delete \"{name}\"? This action cannot be undone.",
+    "deleteSuccess": "\"{name}\" deleted successfully"
+  },
+  "notFound": {
+    "message": "Page not found",
+    "backToDashboard": "Back to Dashboard"
+  }
+}

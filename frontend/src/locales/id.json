@@ -1,0 +1,222 @@
+{
+  "app": {
+    "name": "IAMS",
+    "title": "Sistem Manajemen Aset Infrastruktur"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "assets": "Manajemen Aset",
+    "employees": "Manajemen Karyawan",
+    "departments": "Manajemen Departemen",
+    "locations": "Manajemen Lokasi",
+    "categories": "Manajemen Kategori",
+    "brands": "Manajemen Merek",
+    "models": "Manajemen Model",
+    "incidents": "Manajemen Insiden",
+    "changes": "Manajemen Perubahan",
+    "problems": "Manajemen Masalah",
+    "requests": "Manajemen Permintaan",
+    "reports": "Laporan",
+    "accounts": "Manajemen Akun",
+    "auditLogs": "Audit Log",
+    "groups": {
+      "asset": "Aset",
+      "itsm": "ITSM",
+      "reporting": "Pelaporan",
+      "admin": "Admin"
+    }
+  },
+  "auth": {
+    "login": "Masuk",
+    "logout": "Keluar",
+    "username": "Nama Pengguna",
+    "password": "Kata Sandi",
+    "loginButton": "Masuk",
+    "invalidCredentials": "Nama pengguna atau kata sandi salah",
+    "subtitle": "Masuk ke akun Anda untuk melanjutkan",
+    "copyright": "© {year} IAMS. Semua hak dilindungi."
+  },
+  "validate": {
+    "usernameRequired": "Nama pengguna wajib diisi",
+    "usernameTooShort": "Nama pengguna terlalu pendek",
+    "passwordRequired": "Kata sandi wajib diisi",
+    "minChars": "Minimal {n} karakter",
+    "mustContainUppercase": "Harus mengandung huruf kapital",
+    "mustContainDigit": "Harus mengandung angka",
+    "mustContainSpecial": "Harus mengandung karakter khusus"
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "create": "Tambah",
+    "search": "Cari",
+    "loading": "Memuat...",
+    "noData": "Tidak ada data",
+    "confirm": "Konfirmasi",
+    "actions": "Aksi",
+    "status": "Status",
+    "createdAt": "Dibuat",
+    "updatedAt": "Diperbarui",
+    "active": "Aktif",
+    "inactive": "Tidak Aktif",
+    "locked": "Terkunci",
+    "unassigned": "Tidak Ditugaskan",
+    "back": "Kembali",
+    "apply": "Terapkan",
+    "allStatus": "Semua Status",
+    "noHistory": "Belum ada riwayat.",
+    "deleteConfirmTitle": "Konfirmasi Hapus",
+    "deleteCannotUndo": "Tindakan ini tidak dapat dibatalkan.",
+    "yes": "Ya",
+    "no": "Tidak",
+    "number": "Nomor",
+    "title": "Judul",
+    "type": "Tipe",
+    "priority": "Prioritas",
+    "severity": "Tingkat Keparahan",
+    "description": "Deskripsi",
+    "name": "Nama",
+    "email": "Email",
+    "role": "Peran",
+    "username": "Nama Pengguna",
+    "password": "Kata Sandi",
+    "fullName": "Nama Lengkap",
+    "time": "Waktu",
+    "module": "Modul",
+    "action": "Aksi",
+    "account": "Akun",
+    "ip": "IP",
+    "recordId": "ID Record",
+    "allModules": "Semua Modul",
+    "allActions": "Semua Aksi",
+    "exportCsv": "Ekspor CSV",
+    "exportExcel": "Ekspor Excel",
+    "units": "unit"
+  },
+  "pagination": {
+    "info": "{from}–{to} dari {total} data"
+  },
+  "asset": {
+    "assetTag": "Tag Aset",
+    "serialNumber": "Nomor Seri",
+    "poNumber": "Nomor PO",
+    "model": "Model",
+    "location": "Lokasi",
+    "employee": "Pengguna",
+    "status": "Status",
+    "purchaseDate": "Tanggal Pembelian",
+    "warrantyMonths": "Garansi (bulan)",
+    "warrantyMonthsAbbr": "bln",
+    "osLicense": "Lisensi OS",
+    "notes": "Catatan",
+    "brand": "Merek",
+    "category": "Kategori",
+    "assignedTo": "Ditugaskan Ke",
+    "ipAddress": "Alamat IP",
+    "macAddress": "Alamat MAC",
+    "hostname": "Nama Host",
+    "vlan": "VLAN",
+    "warrantyStatus": "Status Garansi",
+    "expired": "Kedaluwarsa",
+    "monthsRemaining": "{n} bulan tersisa",
+    "months": "{n} bulan",
+    "statuses": {
+      "Active": "Aktif",
+      "Available": "Tersedia",
+      "Repair": "Dalam Perbaikan",
+      "Disposed": "Dibuang"
+    }
+  },
+  "assetList": {
+    "eyebrow": "Manajemen Aset",
+    "createButton": "Tambah Aset",
+    "searchPlaceholder": "Cari tag, nomor seri, PO...",
+    "deleteConfirmMessage": "Hapus aset {tag}? Tindakan ini tidak dapat dibatalkan.",
+    "deleteSuccess": "Aset {tag} berhasil dihapus"
+  },
+  "assetForm": {
+    "createTitle": "Tambah Aset",
+    "editTitle": "Edit Aset",
+    "backToAssets": "← Aset",
+    "assetInfo": "Informasi Aset",
+    "purchaseWarranty": "Pembelian & Garansi",
+    "notes": "Catatan",
+    "selectModel": "Pilih model...",
+    "selectLocation": "Pilih lokasi...",
+    "createButton": "Tambah Aset"
+  },
+  "assetDetail": {
+    "backToAssets": "← Aset",
+    "defaultTitle": "Detail Aset",
+    "assetInfo": "Informasi Aset",
+    "purchaseWarranty": "Pembelian & Garansi",
+    "networkDetails": "Detail Jaringan",
+    "notes": "Catatan",
+    "changeHistory": "Riwayat Perubahan",
+    "deleteConfirmMessage": "Hapus aset {tag}? Tindakan ini tidak dapat dibatalkan."
+  },
+  "dashboard": {
+    "eyebrow": "Ringkasan",
+    "assetStatus": "Status Aset",
+    "itsmOverview": "Ringkasan ITSM",
+    "openIncidents": "Insiden Terbuka",
+    "pendingChanges": "Perubahan Tertunda",
+    "openRequests": "Permintaan Terbuka",
+    "warrantyExpiring": "Garansi Akan Berakhir",
+    "warrantyPlaceholder": "Aset dengan garansi yang berakhir dalam 30 hari ke depan akan muncul di sini."
+  },
+  "itsm": {
+    "eyebrow": "ITSM",
+    "searchPlaceholder": "Cari {module}...",
+    "incidents": {
+      "title": "Insiden",
+      "createTitle": "Buat Insiden"
+    },
+    "changes": {
+      "title": "Perubahan",
+      "createTitle": "Buat Permintaan Perubahan"
+    },
+    "problems": {
+      "title": "Masalah",
+      "createTitle": "Buat Masalah"
+    },
+    "requests": {
+      "title": "Permintaan Layanan",
+      "createTitle": "Buat Permintaan Layanan"
+    }
+  },
+  "account": {
+    "title": "Akun",
+    "createTitle": "Tambah Akun",
+    "editTitle": "Edit Akun",
+    "resetPw": "Reset Sandi",
+    "resetPwTitle": "Reset Kata Sandi",
+    "resetPwFor": "Reset kata sandi untuk {username}",
+    "newPassword": "Kata Sandi Baru",
+    "failedReset": "Gagal mereset kata sandi",
+    "administrator": "Administrator",
+    "user": "Pengguna"
+  },
+  "audit": {
+    "eyebrow": "Admin",
+    "readOnly": "Hanya baca — audit log tidak dapat diubah."
+  },
+  "report": {
+    "eyebrow": "Pelaporan",
+    "searchPlaceholder": "Cari tag aset, nomor seri...",
+    "failedLoad": "Gagal memuat laporan",
+    "exportFailed": "Ekspor gagal",
+    "underRepair": "Dalam Perbaikan"
+  },
+  "master": {
+    "eyebrow": "Data Master",
+    "deleteConfirmMessage": "Hapus \"{name}\"? Tindakan ini tidak dapat dibatalkan.",
+    "deleteSuccess": "\"{name}\" berhasil dihapus"
+  },
+  "notFound": {
+    "message": "Halaman tidak ditemukan",
+    "backToDashboard": "Kembali ke Dashboard"
+  }
+}
