@@ -12,14 +12,17 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 const onChange = (e) => emit('update:modelValue', e.target.value)
 
-const cls = computed(() =>
-  cn(
-    'h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm pr-9 appearance-none',
+const cls = computed(() => {
+  const hasCustomH = /h-\d+/.test(props.class)
+  const hasCustomPy = /py-\d+/.test(props.class)
+  return cn(
+    'w-full rounded-md border border-input bg-background text-sm pr-8 appearance-none',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     'disabled:cursor-not-allowed disabled:opacity-50',
+    !hasCustomH && !hasCustomPy ? 'h-10 px-3 py-2' : hasCustomH && !hasCustomPy ? 'px-2.5 py-0' : '',
     props.class,
-  ),
-)
+  )
+})
 </script>
 <template>
   <div class="relative">
