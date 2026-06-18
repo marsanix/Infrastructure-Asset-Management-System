@@ -235,28 +235,6 @@ async function submit() {
       </div>
 
       <div class="sm:col-span-2 border-t border-border pt-2 mt-0.5">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Detail Jaringan</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div>
-            <Label for="af-ip" class="mb-0.5 text-xs">IP Address</Label>
-            <Input id="af-ip" v-model="form.ip_address" placeholder="10.x.x.x" class="h-8 text-[13px] px-2.5" />
-          </div>
-          <div>
-            <Label for="af-mac" class="mb-0.5 text-xs">MAC Address</Label>
-            <Input id="af-mac" v-model="form.mac_address" placeholder="00:00:00:00:00:00" class="h-8 text-[13px] px-2.5" />
-          </div>
-          <div>
-            <Label for="af-hostname" class="mb-0.5 text-xs">Hostname</Label>
-            <Input id="af-hostname" v-model="form.hostname" placeholder="hostname" class="h-8 text-[13px] px-2.5" />
-          </div>
-          <div>
-            <Label for="af-vlan" class="mb-0.5 text-xs">VLAN</Label>
-            <Input id="af-vlan" v-model="form.vlan" placeholder="VLAN" class="h-8 text-[13px] px-2.5" />
-          </div>
-        </div>
-      </div>
-
-      <div class="sm:col-span-2 border-t border-border pt-2 mt-0.5">
         <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Kredensial Perangkat</p>
         <!-- Existing credentials -->
         <div v-if="credentials.length" class="space-y-1.5 mb-2">
@@ -281,7 +259,29 @@ async function submit() {
             <Button v-if="editingCredId" variant="ghost" size="xs" class="h-7 text-[11px]" @click="cancelEdit">Batal</Button>
           </div>
         </div>
-        <p class="text-[10px] text-muted-foreground mt-1">Password dienkripsi AES-256-GCM. Klik 👁 untuk melihat (tercatat di audit log).</p>
+        <p class="text-[10px] text-muted-foreground mt-2 leading-relaxed">Password dienkripsi AES-256-GCM. Klik 👁 untuk melihat (tercatat di audit log).</p>
+      </div>
+
+      <div class="sm:col-span-2 border-t border-border pt-2 mt-0.5">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Detail Jaringan</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <Label for="af-ip" class="mb-0.5 text-xs">IP Address</Label>
+            <Input id="af-ip" v-model="form.ip_address" placeholder="10.x.x.x" class="h-8 text-[13px] px-2.5" />
+          </div>
+          <div>
+            <Label for="af-mac" class="mb-0.5 text-xs">MAC Address</Label>
+            <Input id="af-mac" v-model="form.mac_address" placeholder="00:00:00:00:00:00" class="h-8 text-[13px] px-2.5" />
+          </div>
+          <div>
+            <Label for="af-hostname" class="mb-0.5 text-xs">Hostname</Label>
+            <Input id="af-hostname" v-model="form.hostname" placeholder="hostname" class="h-8 text-[13px] px-2.5" />
+          </div>
+          <div>
+            <Label for="af-vlan" class="mb-0.5 text-xs">VLAN</Label>
+            <Input id="af-vlan" v-model="form.vlan" placeholder="VLAN" class="h-8 text-[13px] px-2.5" />
+          </div>
+        </div>
       </div>
     </div>
 
