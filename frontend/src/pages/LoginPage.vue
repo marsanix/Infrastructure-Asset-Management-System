@@ -87,16 +87,16 @@ const year = computed(() => new Date().getFullYear())
 
           <div class="mt-10 grid grid-cols-3 gap-3 max-w-sm">
             <div class="rounded-lg bg-white/5 border border-white/10 p-3">
-              <p class="text-2xl font-bold text-indigo-300">24</p>
-              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">Aset Aktif</p>
+              <p class="text-2xl font-bold text-indigo-300">100%</p>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">PRD Compliant</p>
             </div>
             <div class="rounded-lg bg-white/5 border border-white/10 p-3">
-              <p class="text-2xl font-bold text-amber-300">7</p>
-              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">Insiden</p>
+              <p class="text-2xl font-bold text-amber-300">29</p>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">Test Otomatis</p>
             </div>
             <div class="rounded-lg bg-white/5 border border-white/10 p-3">
-              <p class="text-2xl font-bold text-rose-300">3</p>
-              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">Problem</p>
+              <p class="text-2xl font-bold text-rose-300">ID/EN</p>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">2 Bahasa</p>
             </div>
           </div>
         </div>

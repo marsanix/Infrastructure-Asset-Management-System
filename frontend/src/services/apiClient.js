@@ -161,6 +161,11 @@ export const apiClient = {
   getNetworkDetails: (id) => get(`/assets/${id}/network-details`),
   updateNetworkDetails: (id, payload) => put(`/assets/${id}/network-details`, payload),
   getCredentialStatus: (id) => get(`/assets/${id}/credential-status`),
+  listCredentials: (id) => get(`/assets/${id}/credentials`),
+  createCredential: (id, payload) => post(`/assets/${id}/credentials`, payload),
+  updateCredential: (id, cid, payload) => put(`/assets/${id}/credentials/${cid}`, payload),
+  deleteCredential: (id, cid) => del(`/assets/${id}/credentials/${cid}`),
+  revealCredential: (id, cid) => get(`/assets/${id}/credentials/${cid}/reveal`),
   updateCredential: (id, payload) => put(`/assets/${id}/credential`, payload),
 
   // Incidents

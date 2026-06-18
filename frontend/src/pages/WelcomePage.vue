@@ -183,6 +183,61 @@ const t = computed(() => ({
       </div>
     </section>
 
+    <!-- Dashboard Preview -->
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-20 sm:pb-28">
+      <div class="text-center mb-10">
+        <p class="text-[10px] uppercase tracking-[0.25em] text-primary font-semibold">Preview</p>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2">Dashboard Ringkas & Informatif</h2>
+      </div>
+      <div class="rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
+        <!-- Mock browser bar -->
+        <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-border bg-muted/30">
+          <span class="h-2.5 w-2.5 rounded-full bg-red-400/60"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-400/60"></span>
+          <span class="h-2.5 w-2.5 rounded-full bg-green-400/60"></span>
+          <span class="ml-3 text-[10px] text-muted-foreground">localhost:3000/dashboard</span>
+        </div>
+        <!-- Dashboard mockup -->
+        <div class="grid grid-cols-1 lg:grid-cols-[56px_1fr]">
+          <!-- Mini sidebar -->
+          <div class="hidden lg:flex flex-col items-center gap-2 py-3 border-r border-border bg-card">
+            <div class="h-8 w-8 rounded-md bg-primary/10 text-primary grid place-items-center">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18M3 15h18M7 9v6M17 9v6"/></svg>
+            </div>
+            <div class="h-6 w-6 rounded bg-primary/15 grid place-items-center"><div class="h-2 w-2 rounded-sm bg-primary"></div></div>
+            <div class="h-6 w-6 rounded grid place-items-center text-muted-foreground/40"><div class="h-2 w-2 rounded-sm bg-current"></div></div>
+            <div class="h-6 w-6 rounded grid place-items-center text-muted-foreground/40"><div class="h-2 w-2 rounded-sm bg-current"></div></div>
+            <div class="h-6 w-6 rounded grid place-items-center text-muted-foreground/40"><div class="h-2 w-2 rounded-sm bg-current"></div></div>
+          </div>
+          <!-- Main content -->
+          <div class="p-4 sm:p-6 space-y-4">
+            <!-- KPI cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div v-for="(kpi, i) in [{label:'Total Aset',val:'9',color:'text-primary'},{label:'Insiden Terbuka',val:'3',color:'text-warning'},{label:'Problem Aktif',val:'2',color:'text-info'},{label:'Status Jaringan',val:'Stabil',color:'text-success'}]" :key="i" class="rounded-lg border border-border bg-card/50 p-3 flex items-center justify-between">
+                <div>
+                  <p class="text-[9px] text-muted-foreground uppercase tracking-wider">{{ kpi.label }}</p>
+                  <p :class="['text-lg font-bold leading-none mt-0.5', kpi.color]">{{ kpi.val }}</p>
+                </div>
+                <div class="h-7 w-7 rounded bg-primary/10"></div>
+              </div>
+            </div>
+            <!-- Chart row -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="sm:col-span-2 rounded-lg border border-border bg-card/50 p-3 h-24 flex items-end gap-2">
+                <div v-for="(bar, i) in [{h:'70%',c:'bg-primary/60'},{h:'40%',c:'bg-warning/50'},{h:'25%',c:'bg-info/50'},{h:'15%',c:'bg-success/40'},{h:'10%',c:'bg-muted'}]" :key="i" :class="['flex-1 rounded-t', bar.c]" :style="{height:bar.h}"></div>
+              </div>
+              <div class="rounded-lg border border-border bg-card/50 p-3 space-y-1.5">
+                <div v-for="(s, i) in [{label:'Active',val:5,c:'bg-success'},{label:'Available',val:3,c:'bg-info'},{label:'Repair',val:1,c:'bg-warning'}]" :key="i" class="flex items-center justify-between text-[10px]">
+                  <div class="flex items-center gap-1.5"><span :class="['h-2 w-2 rounded-full', s.c]"></span>{{ s.label }}</div>
+                  <span class="font-semibold">{{ s.val }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FAQ -->
     <section id="faq" class="max-w-3xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <div class="text-center mb-12">

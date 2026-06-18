@@ -1,13 +1,13 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import apiClient from '@/services/apiClient'
+import { useUiStore } from '@/stores/ui'
+import { useI18n } from 'vue-i18n'
 import Dialog from '@/components/ui/Dialog.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Label from '@/components/ui/Label.vue'
 import Select from '@/components/ui/Select.vue'
-import { useUiStore } from '@/stores/ui'
-import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -61,12 +61,14 @@ watch(() => props.modelValue, (open) => {
       vlan: props.asset.vlan || '',
       credential: '',
     }
+    fetchCredentials()
   } else {
     form.value = {
       asset_tag: '', serial_number: '', po_number: '', model_id: '', location_id: '', user_id: '',
       status: 'Available', purchase_date: '', warranty_months: '', os_license: '',
       ip_address: '', mac_address: '', hostname: '', vlan: '', credential: '',
     }
+    credentials.value = []
   }
 })
 
@@ -74,6 +76,64 @@ const statusOpts = ['Active', 'Available', 'Repair', 'Disposed'].map((s) => ({ l
 const locationOpts = computed(() => props.locations.map((l) => ({ label: l.name, value: String(l.id) })))
 const modelOpts = computed(() => props.models.map((m) => ({ label: `${m.brand_name} ${m.name}`, value: String(m.id) })))
 const userOpts = computed(() => [{ label: 'IT Inventory / Server', value: '' }, ...props.users.map((u) => ({ label: u.name, value: String(u.id) }))])
+
+const credentials = ref([])
+const credForm = ref({ credential_type: 'SSH', username: '', password: '', notes: '' })
+const credReveal = ref({})
+const editingCredId = ref(null)
+const credTypeOpts = ['SSH', 'Web Console', 'SNMP', 'Telnet', 'RDP', 'API Key', 'Other'].map(s => ({ label: s, value: s }))
+
+async function fetchCredentials() {
+  if (!props.asset?.id) return
+  try { credentials.value = (await apiClient.listCredentials(props.asset.id)).data?.data || [] }
+  catch (_) { credentials.value = [] }
+}
+
+async function addOrUpdateCredential() {
+  if (!props.asset?.id) return
+  try {
+    if (editingCredId.value) {
+      const payload = { credential_type: credForm.value.credential_type, username: credForm.value.username || undefined, notes: credForm.value.notes || undefined }
+      if (credForm.value.password.trim()) payload.password = credForm.value.password.trim()
+      await apiClient.updateCredential(props.asset.id, editingCredId.value, payload)
+      ui.pushToast({ title: t('common.success'), description: 'Kredensial diperbarui.', variant: 'success' })
+    } else {
+      if (!credForm.value.password.trim()) return
+      await apiClient.createCredential(props.asset.id, credForm.value)
+      ui.pushToast({ title: t('common.success'), description: 'Kredensial ditambahkan.', variant: 'success' })
+    }
+    credForm.value = { credential_type: 'SSH', username: '', password: '', notes: '' }
+    editingCredId.value = null
+    fetchCredentials()
+  } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' }) }
+}
+
+function editCredential(cred) {
+  credForm.value = { credential_type: cred.credential_type, username: cred.username || '', password: '', notes: cred.notes || '' }
+  editingCredId.value = cred.id
+}
+
+function cancelEdit() {
+  credForm.value = { credential_type: 'SSH', username: '', password: '', notes: '' }
+  editingCredId.value = null
+}
+
+async function revealCredential(credId) {
+  try {
+    const r = await apiClient.revealCredential(props.asset.id, credId)
+    credReveal.value[credId] = r.data?.data?.password || '***'
+    ui.pushToast({ title: t('common.success'), description: 'Password ditampilkan (tercatat di audit log).', variant: 'info' })
+    setTimeout(() => { delete credReveal.value[credId] }, 5000)
+  } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' }) }
+}
+
+async function deleteCredential(credId) {
+  try {
+    await apiClient.deleteCredential(props.asset.id, credId)
+    ui.pushToast({ title: t('common.success'), description: 'Kredensial dihapus.', variant: 'success' })
+    fetchCredentials()
+  } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' }) }
+}
 
 async function submit() {
   const payload = {
@@ -196,10 +256,31 @@ async function submit() {
         </div>
       </div>
 
-      <div class="sm:col-span-2">
-        <Label for="af-credential" class="mb-0.5 text-xs">{{ isCreate ? 'Credential (simpan terenkripsi)' : 'Update Credential' }}</Label>
-        <Input id="af-credential" v-model="form.credential" type="password" placeholder="Biarkan kosong jika tidak diubah" autocomplete="off" class="h-8 text-[13px] px-2.5" />
-        <p class="text-[11px] text-muted-foreground mt-0.5">Credential disimpan terenkripsi di backend dan tidak ditampilkan kembali.</p>
+      <div class="sm:col-span-2 border-t border-border pt-2 mt-0.5">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Kredensial Perangkat</p>
+        <!-- Existing credentials -->
+        <div v-if="credentials.length" class="space-y-1.5 mb-2">
+          <div v-for="cred in credentials" :key="cred.id" class="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2.5 py-1.5">
+            <span class="text-[11px] font-medium flex-1 truncate">{{ cred.credential_type }}</span>
+            <span class="text-[10px] text-muted-foreground truncate flex-1">{{ cred.username || '-' }}</span>
+            <input v-if="credReveal[cred.id]" :value="credReveal[cred.id]" readonly class="text-[11px] font-mono bg-transparent w-20 truncate" />
+            <span v-else class="text-[11px] font-mono text-muted-foreground">••••••••</span>
+            <Button variant="ghost" size="xs" class="h-6 w-6 p-0" @click="revealCredential(cred.id)" title="Lihat">👁</Button>
+            <Button variant="ghost" size="xs" class="h-6 w-6 p-0" @click="editCredential(cred)" title="Edit">✎</Button>
+            <Button variant="ghost" size="xs" class="h-6 w-6 p-0 text-destructive" @click="deleteCredential(cred.id)" title="Hapus">✕</Button>
+          </div>
+        </div>
+        <!-- Add / Update form -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-1.5">
+          <Select v-model="credForm.credential_type" :options="credTypeOpts" class="h-7 text-[12px] px-2" />
+          <Input v-model="credForm.username" placeholder="Username" class="h-7 text-[12px] px-2" />
+          <Input v-model="credForm.password" type="password" :placeholder="editingCredId ? 'Password baru (opsional)' : 'Password'" autocomplete="off" class="h-7 text-[12px] px-2" />
+          <div class="flex gap-1">
+            <Button size="xs" class="h-7 text-[11px] flex-1" :disabled="!editingCredId && !credForm.password.trim()" @click="addOrUpdateCredential">{{ editingCredId ? 'Update' : '+ Tambah' }}</Button>
+            <Button v-if="editingCredId" variant="ghost" size="xs" class="h-7 text-[11px]" @click="cancelEdit">Batal</Button>
+          </div>
+        </div>
+        <p class="text-[10px] text-muted-foreground mt-1">Password dienkripsi AES-256-GCM. Klik 👁 untuk melihat (tercatat di audit log).</p>
       </div>
     </div>
 
