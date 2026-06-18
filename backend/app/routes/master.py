@@ -1,4 +1,10 @@
-"""Master data blueprint with full CRUD for Administrator."""
+"""Master data management with full CRUD for Administrator.
+
+Modules: Departments, Locations, Categories, Brands, Models.
+- Admin: full CRUD access
+- Operator: read-only access
+- Delete safety: blocked when resource is still referenced by other tables.
+"""
 from flask import Blueprint, g, jsonify, request
 
 from app.extensions import db

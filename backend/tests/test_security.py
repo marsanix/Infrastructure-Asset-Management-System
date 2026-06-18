@@ -241,3 +241,116 @@ class TestAuditLog:
                              ('DELETE', '/api/audit-logs/1')]:
             r = client.open(path=path, method=method, headers={'X-CSRF-Token': csrf})
             assert r.status_code in (404, 405)
+
+
+# ---------------------------------------------------------------------------
+# CRUD integration tests
+# ---------------------------------------------------------------------------
+
+class TestAssetCrud:
+    def test_create_and_get_asset(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/assets', json={'asset_tag': 'AST-CRUD-TEST', 'serial_number': 'SN-CRUD-TEST-001', 'model_id': 1, 'location_id': 1}, headers={'X-CSRF-Token': csrf})
+        assert created.status_code == 201
+        aid = created.json['data']['id']
+        fetched = client.get(f'/api/assets/{aid}')
+        assert fetched.status_code == 200
+        assert fetched.json['data']['asset_tag'] == 'AST-CRUD-TEST'
+
+    def test_update_asset(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/assets', json={'asset_tag': 'AST-UPDATE-TEST', 'serial_number': 'SN-UPDATE-TEST-001', 'model_id': 1, 'location_id': 1}, headers={'X-CSRF-Token': csrf})
+        aid = created.json['data']['id']
+        updated = client.put(f'/api/assets/{aid}', json={'status': 'Repair'}, headers={'X-CSRF-Token': csrf})
+        assert updated.status_code == 200
+        assert updated.json['data']['status'] == 'Repair'
+
+    def test_delete_asset(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/assets', json={'asset_tag': 'AST-DEL-TEST', 'serial_number': 'SN-DEL-TEST-001', 'model_id': 1, 'location_id': 1}, headers={'X-CSRF-Token': csrf})
+        aid = created.json['data']['id']
+        deleted = client.delete(f'/api/assets/{aid}', headers={'X-CSRF-Token': csrf})
+        assert deleted.status_code == 200
+        fetched = client.get(f'/api/assets/{aid}')
+        assert fetched.status_code == 404
+
+
+class TestRequestCrud:
+    def test_create_and_get_request(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/requests', json={'title': 'CRUD Test Request', 'request_type': 'Other', 'priority': 'Low'}, headers={'X-CSRF-Token': csrf})
+        assert created.status_code == 201
+        rid = created.json['data']['id']
+        fetched = client.get(f'/api/requests/{rid}')
+        assert fetched.status_code == 200
+        assert fetched.json['data']['title'] == 'CRUD Test Request'
+
+    def test_update_request_status(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/requests', json={'title': 'Update Test', 'request_type': 'Other', 'priority': 'Low'}, headers={'X-CSRF-Token': csrf})
+        rid = created.json['data']['id']
+        updated = client.put(f'/api/requests/{rid}', json={'status': 'In Progress'}, headers={'X-CSRF-Token': csrf})
+        assert updated.status_code == 200
+        assert updated.json['data']['status'] == 'In Progress'
+
+    def test_delete_request_admin_only(self, admin, client, operator):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/requests', json={'title': 'Delete Test', 'request_type': 'Other', 'priority': 'Low'}, headers={'X-CSRF-Token': csrf})
+        rid = created.json['data']['id']
+        deleted = client.delete(f'/api/requests/{rid}', headers={'X-CSRF-Token': csrf})
+        assert deleted.status_code == 200
+
+
+class TestMasterDataCrud:
+    def test_department_crud(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/departments', json={'name': 'QA Test Dept'}, headers={'X-CSRF-Token': csrf})
+        assert created.status_code == 201
+        did = created.json['data']['id']
+        updated = client.put(f'/api/departments/{did}', json={'name': 'QA Updated Dept'}, headers={'X-CSRF-Token': csrf})
+        assert updated.status_code == 200
+        assert updated.json['data']['name'] == 'QA Updated Dept'
+
+    def test_location_crud(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/locations', json={'name': 'QA Test Loc'}, headers={'X-CSRF-Token': csrf})
+        assert created.status_code == 201
+        lid = created.json['data']['id']
+        updated = client.put(f'/api/locations/{lid}', json={'name': 'QA Updated Loc'}, headers={'X-CSRF-Token': csrf})
+        assert updated.status_code == 200
+
+    def test_category_crud(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/categories', json={'name': 'QA Test Cat'}, headers={'X-CSRF-Token': csrf})
+        assert created.status_code == 201
+        cid = created.json['data']['id']
+        updated = client.put(f'/api/categories/{cid}', json={'name': 'QA Updated Cat'}, headers={'X-CSRF-Token': csrf})
+        assert updated.status_code == 200
+
+    def test_brand_crud(self, admin, client):
+        r = client.get('/api/auth/csrf-token')
+        csrf = r.json['csrf_token']
+        client.post('/api/auth/login', json={'email': 'admin@iams.local', 'password': 'admin123'}, headers={'X-CSRF-Token': csrf})
+        created = client.post('/api/brands', json={'name': 'QA Test Brand'}, headers={'X-CSRF-Token': csrf})
+        assert created.status_code == 201
+        bid = created.json['data']['id']
+        updated = client.put(f'/api/brands/{bid}', json={'name': 'QA Updated Brand'}, headers={'X-CSRF-Token': csrf})
+        assert updated.status_code == 200
