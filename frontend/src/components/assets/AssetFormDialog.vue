@@ -7,7 +7,9 @@ import Input from '@/components/ui/Input.vue'
 import Label from '@/components/ui/Label.vue'
 import Select from '@/components/ui/Select.vue'
 import { useUiStore } from '@/stores/ui'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
   asset: { type: Object, default: null },
@@ -110,11 +112,11 @@ async function submit() {
       await apiClient.updateCredential(assetId, { credential })
     }
 
-    ui.pushToast({ title: 'Berhasil', description: isCreate.value ? 'Aset berhasil ditambahkan.' : 'Aset berhasil diperbarui.', variant: 'success' })
+    ui.pushToast({ title: t('common.success'), description: isCreate.value ? `Aset ${t('toast.created')}.` : `Aset ${t('toast.updated')}.`, variant: 'success' })
     emit('saved')
     emit('update:modelValue', false)
   } catch (err) {
-    ui.pushToast({ title: 'Gagal', description: err.data?.error || 'Terjadi kesalahan saat menyimpan aset.', variant: 'destructive' })
+    ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' })
   } finally {
     loading.value = false
   }

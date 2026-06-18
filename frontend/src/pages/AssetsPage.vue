@@ -17,8 +17,10 @@ import Pagination from '@/components/ui/Pagination.vue'
 import AssetFormDialog from '@/components/assets/AssetFormDialog.vue'
 import AssetHistoryDialog from '@/components/assets/AssetHistoryDialog.vue'
 import { useUiStore } from '@/stores/ui'
+import { useI18n } from 'vue-i18n'
 import { formatDateShort } from '@/lib/utils'
 
+const { t } = useI18n()
 const ui = useUiStore()
 const auth = useAuthStore()
 
@@ -135,7 +137,7 @@ async function confirmDelete() {
   try {
     await apiClient.deleteAsset(pendingDelete.value.id)
     data.value = data.value.filter((a) => a.id !== pendingDelete.value.id)
-    ui.pushToast({ title: 'Aset dihapus', description: `${pendingDelete.value.asset_tag} berhasil dihapus.`, variant: 'success' })
+    ui.pushToast({ title: t('common.success'), description: `${pendingDelete.value.asset_tag} ${t('toast.deleted')}.`, variant: 'success' })
   } catch (err) {
     ui.pushToast({ title: 'Gagal menghapus', description: err.data?.error || 'Tidak dapat menghapus aset.', variant: 'destructive' })
   } finally {
