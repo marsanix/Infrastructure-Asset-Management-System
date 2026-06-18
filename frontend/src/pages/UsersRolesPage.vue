@@ -11,6 +11,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import TableSkeleton from '@/components/ui/TableSkeleton.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import Dialog from '@/components/ui/Dialog.vue'
 import UserFormDialog from '@/components/users/UserFormDialog.vue'
 import { useUiStore } from '@/stores/ui'
 import { formatDate } from '@/lib/utils'
@@ -205,28 +206,28 @@ async function deleteRole(role) {
     </Card>
 
     <!-- Roles -->
-    <Card class="overflow-hidden">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-border bg-secondary/30">
+    <Card class="p-4 mt-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
         <h3 class="text-sm font-semibold">Roles</h3>
-        <Button size="xs" @click="openRoleCreate">+ Role</Button>
+        <Button size="sm" @click="openRoleCreate">+ Tambah Role</Button>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-secondary/40 text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th class="text-left font-semibold px-4 py-2">Nama Role</th>
-              <th class="text-left font-semibold px-4 py-2">Status</th>
-              <th class="px-4 py-2 w-32"></th>
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b text-left">
+              <th class="py-2 px-2 font-medium text-muted-foreground">Nama Role</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">Status</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground w-32">Aksi</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-border">
-            <tr v-for="role in roles" :key="role.id" class="hover:bg-secondary/40">
-              <td class="px-4 py-2.5 font-medium">{{ role.name }}</td>
-              <td class="px-4 py-2.5"><StatusBadge :value="role.is_active ? 'active' : 'inactive'" kind="user" /></td>
-              <td class="px-4 py-2.5 text-right">
-                <div class="flex justify-end gap-2">
-                  <button class="text-xs text-primary hover:underline" @click="openRoleEdit(role)">Edit</button>
-                  <button v-if="role.name !== 'Administrator' && role.name !== 'Operator'" class="text-xs text-destructive hover:underline" @click="deleteRole(role)">Hapus</button>
+          <tbody>
+            <tr v-for="role in roles" :key="role.id" class="border-b hover:bg-muted/50 transition-colors">
+              <td class="py-1.5 px-2 font-medium">{{ role.name }}</td>
+              <td class="py-1.5 px-2"><StatusBadge :value="role.is_active ? 'active' : 'inactive'" kind="user" /></td>
+              <td class="py-1.5 px-2">
+                <div class="flex items-center gap-1">
+                  <Button variant="ghost" size="xs" @click="openRoleEdit(role)">Edit</Button>
+                  <Button v-if="role.name !== 'Administrator' && role.name !== 'Operator'" variant="ghost" size="xs" class="text-destructive" @click="deleteRole(role)">Hapus</Button>
                 </div>
               </td>
             </tr>
@@ -235,19 +236,19 @@ async function deleteRole(role) {
       </div>
     </Card>
 
-    <!-- Role modal -->
-    <div v-if="roleFormOpen" class="fixed inset-0 z-50 flex items-center justify-center">
-      <div class="absolute inset-0 bg-black/50" @click="roleFormOpen = false"></div>
-      <div class="relative bg-card border border-border rounded-lg shadow-xl p-5 w-full max-w-sm mx-4 z-10">
-        <h3 class="text-sm font-semibold mb-3">{{ editingRole ? 'Edit Role' : 'Tambah Role' }}</h3>
-        <Label class="text-xs mb-1">Nama Role</Label>
-        <Input v-model="roleForm.name" placeholder="Nama role" class="h-8 text-[13px] px-2.5 mb-4" />
-        <div class="flex justify-end gap-2">
-          <Button variant="ghost" size="sm" @click="roleFormOpen = false">Batal</Button>
-          <Button size="sm" :loading="roleLoading" :disabled="!roleForm.name.trim()" @click="saveRole">{{ editingRole ? 'Perbarui' : 'Simpan' }}</Button>
+    <!-- Role Dialog -->
+    <Dialog :model-value="roleFormOpen" :title="editingRole ? 'Edit Role' : 'Tambah Role'" compact @update:model-value="roleFormOpen = $event">
+      <div class="space-y-3">
+        <div>
+          <Label class="mb-0.5 text-xs">Nama Role</Label>
+          <Input v-model="roleForm.name" placeholder="Nama role" class="h-8 text-[13px] px-2.5" />
         </div>
       </div>
-    </div>
+      <template #footer>
+        <Button variant="ghost" size="sm" @click="roleFormOpen = false">Batal</Button>
+        <Button size="sm" :loading="roleLoading" :disabled="!roleForm.name.trim()" @click="saveRole">{{ editingRole ? 'Perbarui' : 'Simpan' }}</Button>
+      </template>
+    </Dialog>
 
     <UserFormDialog
       v-model="formOpen"
