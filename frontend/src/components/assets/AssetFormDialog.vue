@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Label from '@/components/ui/Label.vue'
 import Select from '@/components/ui/Select.vue'
+import Barcode from '@/components/ui/Barcode.vue'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -196,6 +197,10 @@ async function submit() {
     compact
     @update:model-value="$emit('update:modelValue', $event)"
   >
+    <!-- Barcode display (edit only) -->
+    <div v-if="!isCreate && asset?.asset_tag" class="flex justify-center mb-3 p-2 bg-white rounded-md border">
+      <Barcode :value="asset.asset_tag" :size="180" class="text-black" />
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px]">
       <div>
         <Label for="af-tag" class="mb-0.5 text-xs">Asset Tag *</Label>
