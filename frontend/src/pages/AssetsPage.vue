@@ -139,7 +139,7 @@ async function confirmDelete() {
     data.value = data.value.filter((a) => a.id !== pendingDelete.value.id)
     ui.pushToast({ title: t('common.success'), description: `${pendingDelete.value.asset_tag} ${t('toast.deleted')}.`, variant: 'success' })
   } catch (err) {
-    ui.pushToast({ title: 'Gagal menghapus', description: err.data?.error || 'Tidak dapat menghapus aset.', variant: 'destructive' })
+    ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' })
   } finally {
     deleting.value = false
     confirmOpen.value = false
@@ -169,14 +169,14 @@ const locationOpts = computed(() => locations.value.map((l) => ({ label: l.name,
     <!-- Header & actions -->
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3">
       <div>
-        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">Inventory</p>
-        <h2 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">Manajemen Aset</h2>
-        <p class="text-sm text-muted-foreground mt-1">Router, Switch, Firewall, Access Point, dan Printer.</p>
+        <p class="text-xs uppercase tracking-[0.2em] text-muted-foreground">{{ t('dashboard.overview') }}</p>
+        <h2 class="text-2xl md:text-3xl font-bold tracking-tight mt-1">{{ t('assets.title') }}</h2>
+        <p class="text-sm text-muted-foreground mt-1">{{ t('assets.subtitle') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <Button data-testid="assets-add-btn" @click="openCreate">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          Tambah Aset
+          {{ t('assets.addAsset') }}
         </Button>
       </div>
     </div>
@@ -185,28 +185,28 @@ const locationOpts = computed(() => locations.value.map((l) => ({ label: l.name,
     <Card class="p-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <div class="lg:col-span-2">
-          <Label for="search">Pencarian</Label>
+          <Label for="search">{{ t('common.search') }}</Label>
           <div class="relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <Input id="search" v-model="query" placeholder="Cari tag, serial, IP, PO, model..." class="pl-9" data-testid="assets-search-input" />
+            <Input id="search" v-model="query" :placeholder="t('assets.searchPlaceholder')" class="pl-9" data-testid="assets-search-input" />
           </div>
         </div>
         <div>
-          <Label>Kategori</Label>
-          <Select v-model="categoryFilter" :options="categoryOpts" placeholder="Semua kategori" data-testid="assets-filter-category" />
+          <Label>{{ t('masterData.category') }}</Label>
+          <Select v-model="categoryFilter" :options="categoryOpts" :placeholder="t('dashboard.byCategory')" data-testid="assets-filter-category" />
         </div>
         <div>
-          <Label>Status</Label>
-          <Select v-model="statusFilter" :options="statusOpts" placeholder="Semua status" data-testid="assets-filter-status" />
+          <Label>{{ t('assets.status') }}</Label>
+          <Select v-model="statusFilter" :options="statusOpts" :placeholder="t('assets.allStatus')" data-testid="assets-filter-status" />
         </div>
         <div>
-          <Label>Lokasi</Label>
+          <Label>{{ t('assets.location') }}</Label>
           <Select v-model="locationFilter" :options="locationOpts" placeholder="Semua lokasi" data-testid="assets-filter-location" />
         </div>
       </div>
       <div v-if="query || categoryFilter || statusFilter || locationFilter" class="mt-3 flex items-center gap-3 text-xs">
-        <span class="text-muted-foreground">{{ filtered.length }} hasil sesuai filter</span>
-        <button class="text-primary hover:underline" data-testid="assets-reset-filters" @click="resetFilters">Reset filter</button>
+        <span class="text-muted-foreground">{{ filtered.length }} {{ t('assets.results') }}</span>
+        <button class="text-primary hover:underline" data-testid="assets-reset-filters" @click="resetFilters">{{ t('common.reset') }}</button>
       </div>
     </Card>
 
@@ -214,19 +214,19 @@ const locationOpts = computed(() => locations.value.map((l) => ({ label: l.name,
     <Card class="overflow-hidden">
       <div v-if="loading" class="p-4"><TableSkeleton :rows="6" :columns="7" /></div>
       <ErrorState v-else-if="error" @retry="load()" />
-      <EmptyState v-else-if="filtered.length === 0" title="Aset tidak ditemukan" description="Coba ubah filter atau kata kunci pencarian." icon="search" />
+      <EmptyState v-else-if="filtered.length === 0" :title="t('empty.assetsTitle')" :description="t('empty.assetsDesc')" icon="search" />
       <div v-else class="overflow-x-auto">
-        <table class="w-full text-sm" data-testid="assets-table">
-          <thead class="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th class="text-left font-semibold px-4 py-3">Aset</th>
-              <th class="text-left font-semibold px-4 py-3">Kategori</th>
-              <th class="text-left font-semibold px-4 py-3">Lokasi</th>
-              <th class="text-left font-semibold px-4 py-3">IP / MAC</th>
-              <th class="text-left font-semibold px-4 py-3">Pengguna</th>
-              <th class="text-left font-semibold px-4 py-3">Status</th>
-              <th class="text-left font-semibold px-4 py-3">Diperbarui</th>
-              <th class="px-4 py-3 w-20"></th>
+        <table class="w-full text-xs" data-testid="assets-table">
+          <thead>
+            <tr class="border-b text-left">
+              <th class="py-2 px-2 font-medium text-muted-foreground">{{ t('assets.title') }}</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">{{ t('masterData.category') }}</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">{{ t('assets.location') }}</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">IP / MAC</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">{{ t('assets.user') }}</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">{{ t('assets.status') }}</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground">{{ t('assets.updated') }}</th>
+              <th class="py-2 px-2 font-medium text-muted-foreground w-20"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
