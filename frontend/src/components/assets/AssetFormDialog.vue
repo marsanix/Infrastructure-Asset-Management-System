@@ -124,7 +124,8 @@ function cancelEdit() {
 async function revealCredential(credId) {
   try {
     const r = await apiClient.revealCredential(props.asset.id, credId)
-    credReveal.value[credId] = r.data?.data?.password || '***'
+    const pwd = r.data?.password || r.data?.data?.password || '***'
+    credReveal.value[credId] = pwd
     ui.pushToast({ title: t('common.success'), description: 'Password ditampilkan (tercatat di audit log).', variant: 'info' })
     setTimeout(() => { delete credReveal.value[credId] }, 5000)
   } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' }) }
