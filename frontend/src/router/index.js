@@ -27,6 +27,7 @@ const routes = [
       { path: 'problems', name: 'problems', component: () => import('@/pages/ProblemsPage.vue') },
       { path: 'requests', name: 'requests', component: () => import('@/pages/RequestsPage.vue') },
       { path: 'changes', name: 'changes', component: () => import('@/pages/ChangesPage.vue') },
+      { path: 'licenses', name: 'licenses', component: () => import('@/pages/LicensesPage.vue') },
       {
         path: 'master-data',
         name: 'master-data',

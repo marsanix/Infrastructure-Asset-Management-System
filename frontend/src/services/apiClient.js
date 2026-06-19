@@ -237,6 +237,22 @@ export const apiClient = {
   approveChange: (id, payload) => post(`/changes/${id}/approve`, payload || {}),
   rejectChange: (id, payload) => post(`/changes/${id}/reject`, payload || {}),
 
+  listAssetFiles: (id) => get(`/assets/${id}/files`),
+  uploadAssetFile: async (id, file) => {
+    const form = new FormData(); form.append('file', file)
+    await ensureCsrfToken()
+    const res = await fetch(`${BASE}/assets/${id}/files`, { method: 'POST', credentials: 'include', headers: { 'X-CSRF-Token': csrfToken }, body: form })
+    if (!res.ok) throw { data: await res.json() }
+    return res.json()
+  },
+  deleteAssetFile: (id, fid) => del(`/assets/${id}/files/${fid}`),
+
+  // Licenses
+  listLicenses: (params = {}) => { const qs = new URLSearchParams({ ...params, per_page: 1000 }).toString(); return get(`/licenses${qs ? '?'+qs : ''}`) },
+  createLicense: (p) => post('/licenses', p),
+  updateLicense: (id, p) => put(`/licenses/${id}`, p),
+  deleteLicense: (id) => del(`/licenses/${id}`),
+
   // Reports
   fullAssetReport: () => get('/reports/assets/full'),
   assetsWarrantyExpiring: (months = 3) => get(`/reports/assets/warranty-expiring?months=${months}`),

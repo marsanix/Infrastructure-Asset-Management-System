@@ -63,6 +63,7 @@ watch(() => props.modelValue, (open) => {
       credential: '',
     }
     fetchCredentials()
+    fetchFiles()
   } else {
     form.value = {
       asset_tag: '', serial_number: '', po_number: '', model_id: '', location_id: '', user_id: '',
@@ -82,6 +83,9 @@ const credentials = ref([])
 const credForm = ref({ credential_type: 'SSH', username: '', password: '', notes: '' })
 const credReveal = ref({})
 const editingCredId = ref(null)
+const files = ref([])
+const fileInput = ref(null)
+const uploading = ref(false)
 const credTypeOpts = ['SSH', 'Web Console', 'SNMP', 'Telnet', 'RDP', 'API Key', 'Other'].map(s => ({ label: s, value: s }))
 
 async function fetchCredentials() {
@@ -120,6 +124,30 @@ function editCredential(cred) {
 function cancelEdit() {
   credForm.value = { credential_type: 'SSH', username: '', password: '', notes: '' }
   editingCredId.value = null
+}
+
+async function fetchFiles() {
+  if (!props.asset?.id) return
+  try { const r = await apiClient.listAssetFiles(props.asset.id); files.value = r.data?.data || r.data || [] }
+  catch (_) { files.value = [] }
+}
+
+async function uploadFile(e) {
+  const file = e.target.files?.[0]
+  if (!file || !props.asset?.id) return
+  uploading.value = true
+  try {
+    await apiClient.uploadAssetFile(props.asset.id, file)
+    fetchFiles()
+  } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || 'Upload gagal.', variant: 'destructive' }) }
+  finally { uploading.value = false }
+}
+
+async function deleteFile(fileId) {
+  try {
+    await apiClient.deleteAssetFile(props.asset.id, fileId)
+    files.value = files.value.filter(f => f.id !== fileId)
+  } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' }) }
 }
 
 async function revealCredential(credId) {
@@ -288,6 +316,22 @@ async function submit() {
           <Input v-model="credForm.password" type="password" placeholder="Pass" autocomplete="off" class="h-7 text-[11px] px-1.5 col-span-2 sm:col-span-2" />
           <Button size="xs" class="h-7 text-[10px] sm:col-span-1" :disabled="!editingCredId && !credForm.password.trim()" @click="addOrUpdateCredential">{{ editingCredId ? 'Update' : '+ Tambah' }}</Button>
           <Button v-if="editingCredId" variant="ghost" size="xs" class="h-7 text-[10px]" @click="cancelEdit">Batal</Button>
+        </div>
+      </div>
+
+      <!-- File Upload (edit only) -->
+      <div class="w-full text-left border-t border-border pt-2 mt-1">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{{ isCreate ? '' : 'File Upload' }}</p>
+        <div v-if="!isCreate" class="flex items-center gap-2">
+          <input ref="fileInput" type="file" class="text-[11px] flex-1" @change="uploadFile" />
+          <span v-if="uploading" class="text-[10px] text-muted-foreground">Uploading...</span>
+        </div>
+        <div v-if="files.length" class="space-y-0.5 mt-1">
+          <div v-for="f in files" :key="f.id" class="flex items-center gap-2 text-[10px] bg-muted/30 rounded px-2 py-0.5">
+            <span class="flex-1 truncate">{{ f.original_name }}</span>
+            <a :href="'/api/assets/'+asset?.id+'/files/'+f.id" target="_blank" class="text-primary hover:underline">Unduh</a>
+            <Button variant="ghost" size="xs" class="h-5 w-5 p-0 text-destructive" @click="deleteFile(f.id)">✕</Button>
+          </div>
         </div>
       </div>
       <div class="flex items-center justify-end gap-2 w-full">
