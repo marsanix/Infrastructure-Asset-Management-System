@@ -2,10 +2,11 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useLocaleStore } from '@/stores/locale'
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import Button from '@/components/ui/Button.vue'
 import TextReveal from '@/components/ui/TextReveal.vue'
 import Marquee from '@/components/ui/Marquee.vue'
+import AnimatedGradient from '@/components/ui/AnimatedGradient.vue'
 import { motion } from 'motion-v'
 
 const router = useRouter()
@@ -84,6 +85,15 @@ const t = computed(() => ({
   }
 }))
 
+onMounted(() => { window.addEventListener('scroll', onScroll) })
+onBeforeUnmount(() => { window.removeEventListener('scroll', onScroll) })
+function onScroll() {
+  const btn = document.getElementById('scroll-top')
+  if (!btn) return
+  const v = window.scrollY > 400
+  btn.style.opacity = v ? '1' : '0'; btn.style.pointerEvents = v ? 'auto' : 'none'
+}
+
 const kpis = [
   { label: 'Total Aset', val: '9', colorClass: 'text-primary' },
   { label: 'Insiden Terbuka', val: '3', colorClass: 'text-warning' },
@@ -117,7 +127,8 @@ const status = [
 
     <!-- Hero -->
     <section class="relative overflow-hidden">
-      <div class="absolute inset-0 grid-bg opacity-30"></div>
+      <AnimatedGradient class="z-0" />
+      <div class="absolute inset-0 grid-bg opacity-30 z-0"></div>
       <div class="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl"></div>
       <div class="absolute -bottom-60 -left-40 h-[500px] w-[500px] rounded-full bg-violet-500/5 blur-3xl"></div>
       <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-20 pb-16 sm:pt-28 sm:pb-20 text-center relative z-10">
@@ -179,13 +190,16 @@ const status = [
           :whileInView="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.35, delay: i * 0.07, ease: [0.25, 0.1, 0.25, 1] }"
           :viewport="{ once: true, margin: '-40px' }"
-          class="group rounded-xl border border-border bg-card p-6 hover:border-primary/30 hover:shadow-md transition-colors duration-200"
+          class="group relative rounded-xl border border-border bg-card p-6 hover:border-primary/30 hover:shadow-md transition-all duration-200"
         >
+          <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 via-transparent to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+          <div class="relative z-10">
           <div class="h-10 w-10 rounded-lg bg-primary/10 text-primary grid place-items-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-200">
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"><path :d="f.icon"/></svg>
           </div>
           <h3 class="font-semibold text-sm">{{ f.title }}</h3>
           <p class="text-xs text-muted-foreground mt-2 leading-relaxed">{{ f.desc }}</p>
+        </div>
         </motion.div>
       </div>
     </section>
@@ -267,5 +281,15 @@ const status = [
         </div>
       </div>
     </footer>
+
+    <!-- Scroll to top -->
+    <button
+      id="scroll-top"
+      class="fixed bottom-6 right-6 z-50 h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg grid place-items-center opacity-0 pointer-events-none transition-opacity duration-300 hover:scale-110"
+      onclick="window.scrollTo({top:0,behavior:'smooth'})"
+      aria-label="Scroll to top"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+    </button>
   </div>
 </template>
