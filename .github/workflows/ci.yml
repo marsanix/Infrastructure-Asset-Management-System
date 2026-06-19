@@ -1,0 +1,85 @@
+name: IAMS CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MYSQL_ROOT_PASSWORD: test_root
+          MYSQL_DATABASE: iams_test
+          MYSQL_USER: iams
+          MYSQL_PASSWORD: iams_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Copy env
+        run: |
+          cp .env.example .env
+          echo "DATABASE_URL=mysql+pymysql://iams:iams_test@127.0.0.1:3306/iams_test" >> .env
+          echo "RATELIMIT_STORAGE_URI=redis://127.0.0.1:6379/0" >> .env
+
+      - name: Run migrations
+        env:
+          JWT_SECRET: test-ci-secret-minimum-32-chars-for-jwt
+          AES_KEY_BASE64: MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=
+          FRONTEND_ORIGIN: http://localhost:3000
+          FLASK_ENV: development
+          COOKIE_SECURE: false
+          COOKIE_SAMESITE: Lax
+        run: |
+          cd backend
+          flask db upgrade
+          flask seed
+
+      - name: Run tests
+        env:
+          RATELIMIT_ENABLED: false
+        run: |
+          cd backend
+          python -m pytest tests/ -v --tb=short
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
