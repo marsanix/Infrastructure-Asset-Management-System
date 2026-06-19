@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import apiClient from '@/services/apiClient'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
-import Button from '@/components/ui/Button.vue'
 import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
@@ -104,8 +103,14 @@ const toneDot = {
           <span class="opacity-80 hidden sm:inline">· {{ networkStatus.detail }}</span>
         </div>
         <div class="flex gap-1.5">
-          <Button size="xs" variant="outline" @click="router.push({name:'assets'})">+ {{ t('common.asset') }}</Button>
-          <Button size="xs" variant="outline" @click="router.push({name:'incidents'})">+ {{ t('common.incident') }}</Button>
+          <button class="inline-flex items-center gap-1 rounded-md border border-border bg-card hover:bg-primary hover:text-primary-foreground hover:border-primary px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150" @click="router.push({name:'assets'})">
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            {{ t('common.asset') }}
+          </button>
+          <button class="inline-flex items-center gap-1 rounded-md border border-border bg-card hover:bg-warning hover:text-white hover:border-warning px-2.5 py-1.5 text-[11px] font-medium transition-all duration-150" @click="router.push({name:'incidents'})">
+            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            {{ t('common.incident') }}
+          </button>
         </div>
       </div>
     </div>
