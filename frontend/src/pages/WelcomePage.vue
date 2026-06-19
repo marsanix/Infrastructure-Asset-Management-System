@@ -29,9 +29,9 @@ const t = computed(() => ({
     cta2: _('Lihat Fitur', 'See Features'),
   },
   stats: [
-    { value: '17', label: _('Fitur PRD', 'PRD Features') },
+    { value: '22', label: _('Fitur', 'Features') },
+    { value: '86', label: _('API Endpoints', 'API Endpoints') },
     { value: '42', label: _('Test Otomatis', 'Automated Tests') },
-    { value: 'ID/EN', label: _('Bahasa', 'Languages') },
   ],
   trust: {
     title: _('Dibangun dengan Standar Keamanan', 'Built with Security Standards'),
