@@ -11,7 +11,18 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 function close() { emit('update:modelValue', false) }
-function onKey(e) { if (e.key === 'Escape') close() }
+function onKey(e) {
+  if (e.key === 'Escape') { close(); return }
+  if (e.key === 'Tab') {
+    const panel = document.querySelector('[role="dialog"]')
+    if (!panel) return
+    const focusable = panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    if (!focusable.length) return
+    const first = focusable[0]; const last = focusable[focusable.length - 1]
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+  }
+}
 
 watch(() => props.modelValue, (open) => {
   document.body.style.overflow = open ? 'hidden' : ''

@@ -4,11 +4,13 @@ from datetime import date, datetime, timezone
 from flask import Blueprint, current_app, g, jsonify, request
 
 from app.extensions import db
-from app.models import Asset, AssetCredential, NetworkDetail
+from app.models import Asset, AssetCredential, Category, DeviceModel, Location, NetworkDetail, User
 from app.utils.audit import log_audit
-from app.utils.decorators import admin_only, admin_or_operator, audit_action, require_csrf, require_role
+from app.utils.decorators import admin_only, admin_or_operator, audit_action, require_csrf
 from app.utils.pagination import paginate
 from app.utils.security import decrypt_secret, encrypt_secret
+
+from sqlalchemy.orm import selectinload
 
 bp = Blueprint('assets', __name__, url_prefix='/api/assets')
 
@@ -29,22 +31,47 @@ def _validate_asset_payload(data: dict, updating: bool = False) -> tuple[dict | 
     status = data.get('status', 'Available')
     if status not in ASSET_STATUSES:
         return {'error': f'Invalid status. Allowed: {", ".join(ASSET_STATUSES)}'}, 400
+    for fk_field, model in [('model_id', DeviceModel), ('location_id', Location)]:
+        val = data.get(fk_field)
+        if val and not db.session.get(model, int(val)):
+            return {'error': f'Invalid {fk_field}'}, 400
+    user_id = data.get('user_id')
+    if user_id and not db.session.get(User, int(user_id)):
+        return {'error': 'Invalid user_id'}, 400
     return None, None
 
 
 @bp.route('', methods=['GET'])
 @admin_or_operator
 def list_assets():
-    query = Asset.query
+    query = Asset.query.options(
+        selectinload(Asset.model).selectinload(DeviceModel.brand),
+        selectinload(Asset.model).selectinload(DeviceModel.category),
+        selectinload(Asset.location),
+        selectinload(Asset.user).selectinload(User.department),
+        selectinload(Asset.network_detail),
+        selectinload(Asset.credentials),
+    )
     status = request.args.get('status')
     location_id = request.args.get('location_id')
     model_id = request.args.get('model_id')
+    category = request.args.get('category')
+    search = (request.args.get('search') or '').strip()
     if status:
         query = query.filter_by(status=status)
     if location_id:
         query = query.filter_by(location_id=location_id)
     if model_id:
         query = query.filter_by(model_id=model_id)
+    if category:
+        query = query.join(Asset.model).join(DeviceModel.category).filter(Category.name == category)
+    if search:
+        pattern = f'{search}%'
+        query = query.filter(db.or_(
+            Asset.asset_tag.like(pattern),
+            Asset.serial_number.like(pattern),
+            Asset.po_number.like(pattern),
+        ))
     rows = query.order_by(Asset.asset_tag)
     return jsonify(paginate(rows))
 
@@ -164,7 +191,7 @@ def update_asset(asset_id):
 
 
 @bp.route('/<int:asset_id>', methods=['DELETE'])
-@require_role('Administrator')
+@admin_only
 @require_csrf
 @audit_action('DELETE', 'asset', resource_id_key='asset_id')
 def delete_asset(asset_id):

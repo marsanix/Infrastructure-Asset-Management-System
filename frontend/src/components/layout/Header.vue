@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import apiClient from '@/services/apiClient'
 import { useAuthStore } from '@/stores/auth'
@@ -21,7 +21,8 @@ const { t } = useI18n()
 const profileOpen = ref(false)
 const notifOpen = ref(false)
 const notifications = ref([])
-const hasUnread = ref(false)
+const unreadCount = ref(0)
+const lastSeen = ref(null)
 
 function closeAllMenus(e) {
   if (!e.target.closest('[data-menu-root]')) {
@@ -33,26 +34,54 @@ function closeAllMenus(e) {
 onMounted(() => { window.addEventListener('click', closeAllMenus); fetchNotifications() })
 onBeforeUnmount(() => window.removeEventListener('click', closeAllMenus))
 
+watch(() => route.fullPath, () => fetchNotifications())
+
 const currentLabel = computed(() => labelForRoute(route.name))
 const initials = computed(() => auth.user?.avatar || (auth.user?.name || '').split(' ').map((s) => s[0]).slice(0, 2).join(''))
 
 async function fetchNotifications() {
   try {
     const [incRes, auditRes] = await Promise.all([
-      apiClient.listIncidents({ per_page: 3 }).catch(() => ({ data: { data: [] } })),
-      apiClient.listAuditLogs({ per_page: 3 }).catch(() => ({ data: { data: [] } })),
+      apiClient.listIncidents({ per_page: 5 }).catch(() => ({ data: { data: [] } })),
+      apiClient.listAuditLogs({ per_page: 5 }).catch(() => ({ data: { data: [] } })),
     ])
     const incs = (incRes.data?.data || incRes.data || []).slice(0, 3).map(i => ({
+      id: `inc-${i.id}`,
       text: `${i.code} · ${i.severity}`,
       sub: i.title,
+      link: { name: 'incidents' },
+      time: i.created_at,
     }))
     const logs = (auditRes.data?.data || auditRes.data || []).slice(0, 2).map(l => ({
+      id: `audit-${l.id}`,
       text: `${l.action} ${l.resource_type}`,
-      sub: l.status === 'success' ? 'Berhasil' : 'Gagal',
+      sub: l.status === 'success' ? t('common.success') : t('common.failed'),
+      link: { name: 'audit-logs' },
+      time: l.timestamp,
     }))
     notifications.value = [...incs, ...logs].slice(0, 5)
-    hasUnread.value = notifications.value.length > 0
-  } catch (_) { /* ignore */ }
+    if (lastSeen.value) {
+      unreadCount.value = notifications.value.filter(n => n.time && n.time > lastSeen.value).length
+    } else {
+      unreadCount.value = notifications.value.length
+    }
+  } catch (_) { unreadCount.value = 0 }
+}
+
+function dismissUnread() {
+  lastSeen.value = new Date().toISOString()
+  unreadCount.value = 0
+}
+
+function toggleNotif() {
+  notifOpen.value = !notifOpen.value
+  if (notifOpen.value) dismissUnread()
+}
+
+function goNotif(n) {
+  if (n.link) router.push(n.link)
+  notifOpen.value = false
+  ui.closeMobileSidebar()
 }
 
 function logout() {
@@ -65,13 +94,6 @@ function toggleLang() {
   themeOpen.value = false
   profileOpen.value = false
   notifOpen.value = false
-}
-
-function toggleNotif() {
-  notifOpen.value = !notifOpen.value
-  if (notifOpen.value) { hasUnread.value = false }
-  langOpen.value = false
-  profileOpen.value = false
 }
 
 function toggleProfile() {
@@ -114,17 +136,17 @@ function toggleProfile() {
         <div class="relative" data-menu-root>
           <Button variant="ghost" size="icon" data-testid="notifications-btn" aria-label="Notifications" @click.stop="toggleNotif">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-            <span v-if="notifications.length && hasUnread" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive"></span>
+            <span v-if="unreadCount" class="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground grid place-items-center leading-none">{{ unreadCount }}</span>
           </Button>
           <transition name="fade">
             <div v-if="notifOpen" class="absolute right-0 mt-2 w-80 card-surface shadow-xl p-2 animate-slide-down" data-testid="notifications-menu">
-              <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Notifikasi terbaru</div>
+              <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{{ t('common.notifications') }}</div>
               <div class="divide-y divide-border">
-                <div v-if="!notifications.length" class="p-3 text-xs text-muted-foreground">Belum ada notifikasi.</div>
-                <div v-for="(n, i) in notifications" :key="i" class="p-3 hover:bg-secondary rounded-md">
+                <div v-if="!notifications.length" class="p-3 text-xs text-muted-foreground">{{ t('common.noNotifications') }}</div>
+                <button v-for="(n, i) in notifications" :key="i" class="w-full text-left p-3 hover:bg-secondary rounded-md transition-colors cursor-pointer" @click="goNotif(n)">
                   <p class="text-sm font-medium">{{ n.text }}</p>
                   <p class="text-xs text-muted-foreground mt-0.5">{{ n.sub }}</p>
-                </div>
+                </button>
               </div>
             </div>
           </transition>

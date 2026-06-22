@@ -1,15 +1,16 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 import { cn } from '@/lib/utils'
 
 const props = defineProps({
   variant: { type: String, default: 'default' }, // default | secondary | outline | ghost | destructive | success | link
-  size: { type: String, default: 'md' }, // sm | md | lg | icon
+  size: { type: String, default: 'md' }, // xs | sm | md | lg | icon
   as: { type: String, default: 'button' },
   type: { type: String, default: 'button' },
   loading: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
 })
+const attrs = useAttrs()
 
 const base =
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] hover:scale-[1.02] select-none'
@@ -25,6 +26,7 @@ const variants = {
 }
 
 const sizes = {
+  xs: 'h-7 px-2 text-[11px]',
   sm: 'h-8 px-3 text-xs',
   md: 'h-9 px-4 text-sm',
   lg: 'h-11 px-6 text-base',
@@ -32,6 +34,7 @@ const sizes = {
 }
 
 const classes = computed(() => cn(base, variants[props.variant], sizes[props.size]))
+const title = computed(() => attrs.title || attrs['aria-label'])
 </script>
 
 <template>
@@ -40,6 +43,7 @@ const classes = computed(() => cn(base, variants[props.variant], sizes[props.siz
     :type="as === 'button' ? type : undefined"
     :disabled="disabled || loading"
     :class="classes"
+    :title="title"
   >
     <svg v-if="loading" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" class="opacity-25" />

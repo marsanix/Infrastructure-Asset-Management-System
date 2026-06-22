@@ -5,7 +5,7 @@ from flask.cli import with_appcontext
 from app.extensions import db
 from datetime import date, datetime, timedelta
 
-from app.models import Asset, Brand, Category, ChangeRequest, Department, DeviceModel, Incident, Location, Problem, Role, ServiceRequest, User
+from app.models import Asset, Brand, Category, ChangeRequest, Department, DeviceModel, Incident, Location, Problem, Role, ServiceRequest, SoftwareLicense, User
 from app.utils.security import hash_password
 
 
@@ -226,6 +226,27 @@ def seed_command():
                 asset_id=asset.id if asset else None,
                 planned_start=datetime.combine(ps, datetime.min.time()) if ps else None,
                 planned_end=datetime.combine(pe, datetime.min.time()) if pe else None,
+            ))
+        db.session.commit()
+
+    # Sample software licenses
+    if SoftwareLicense.query.count() == 0:
+        licenses_data = [
+            ('Microsoft 365 Business', 'N9J4R-2KPHF-WXB79-7CQJD-M3GYK', 50, 'it-admin@company.co.id', today - timedelta(days=180), today + timedelta(days=185)),
+            ('Windows Server 2022 Datacenter', 'WX4NM-KYWYW-QJJR4-XV3QB-6VM33', 5, 'infra@company.co.id', today - timedelta(days=365), today + timedelta(days=730)),
+            ('VMware vSphere Enterprise Plus', 'HV4WC-01087-1ZJ30-08EP0-CK212', 3, 'datacenter@company.co.id', today - timedelta(days=90), today + timedelta(days=275)),
+            ('Kaspersky Endpoint Security', 'KESC-1234-5678-9012', 100, 'security@company.co.id', today - timedelta(days=30), today + timedelta(days=335)),
+            ('Adobe Creative Cloud', 'ADBE-CC-TEAM-2026', 10, 'design@company.co.id', today - timedelta(days=60), today + timedelta(days=305)),
+            ('Fortinet FortiGuard Bundle', 'FG100F-LIC-BDL-2026', 2, 'noc@company.co.id', today - timedelta(days=200), today + timedelta(days=165)),
+        ]
+        for name, key, seats, email, purchase, expiry in licenses_data:
+            db.session.add(SoftwareLicense(
+                name=name,
+                product_key=key,
+                seats=seats,
+                licensed_to_email=email,
+                purchase_date=purchase,
+                expiration_date=expiry,
             ))
         db.session.commit()
 

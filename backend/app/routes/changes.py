@@ -9,6 +9,8 @@ from app.utils.audit import log_audit
 from app.utils.decorators import admin_only, admin_or_operator, require_csrf
 from app.utils.pagination import paginate
 
+from sqlalchemy.orm import selectinload
+
 bp = Blueprint('changes', __name__, url_prefix='/api/changes')
 
 CHANGE_TYPES = {'Standard', 'Normal', 'Emergency', 'Maintenance', 'Configuration', 'Replacement', 'Relocation', 'Other'}
@@ -48,7 +50,15 @@ def _validate(data, updating=False):
 @bp.route('', methods=['GET'])
 @admin_or_operator
 def list_changes():
-    query = ChangeRequest.query
+    query = ChangeRequest.query.options(
+        selectinload(ChangeRequest.requester),
+        selectinload(ChangeRequest.assignee),
+        selectinload(ChangeRequest.approver),
+        selectinload(ChangeRequest.asset),
+        selectinload(ChangeRequest.incident),
+        selectinload(ChangeRequest.problem),
+        selectinload(ChangeRequest.related_request),
+    )
     for param, col in [
         ('status', ChangeRequest.status), ('change_type', ChangeRequest.change_type),
         ('risk_level', ChangeRequest.risk_level), ('impact', ChangeRequest.impact),
@@ -172,6 +182,10 @@ def approve_change(chg_id):
     c = db.session.get(ChangeRequest, chg_id)
     if not c:
         return jsonify({'error': 'Change not found'}), 404
+    if c.status not in ('Submitted', 'Under Review'):
+        return jsonify({'error': f'Cannot approve a change that is {c.status}'}), 409
+    if c.requester_id == g.current_user_id:
+        return jsonify({'error': 'Cannot approve your own change request'}), 409
     data = request.get_json(silent=True) or {}
     c.status = 'Approved'
     c.approver_id = g.current_user_id
@@ -189,6 +203,10 @@ def reject_change(chg_id):
     c = db.session.get(ChangeRequest, chg_id)
     if not c:
         return jsonify({'error': 'Change not found'}), 404
+    if c.status not in ('Submitted', 'Under Review'):
+        return jsonify({'error': f'Cannot reject a change that is {c.status}'}), 409
+    if c.requester_id == g.current_user_id:
+        return jsonify({'error': 'Cannot reject your own change request'}), 409
     data = request.get_json(silent=True) or {}
     c.status = 'Rejected'
     c.approver_id = g.current_user_id

@@ -9,6 +9,8 @@ from app.utils.audit import log_audit
 from app.utils.decorators import admin_only, admin_or_operator, require_csrf
 from app.utils.pagination import paginate
 
+from sqlalchemy.orm import selectinload
+
 bp = Blueprint('requests', __name__, url_prefix='/api/requests')
 
 REQUEST_TYPES = {
@@ -51,7 +53,12 @@ def _validate(data, updating=False):
 @bp.route('', methods=['GET'])
 @admin_or_operator
 def list_requests():
-    query = ServiceRequest.query
+    query = ServiceRequest.query.options(
+        selectinload(ServiceRequest.requester),
+        selectinload(ServiceRequest.assigned_to),
+        selectinload(ServiceRequest.asset),
+        selectinload(ServiceRequest.department),
+    )
     for param, column in [
         ('status', ServiceRequest.status),
         ('priority', ServiceRequest.priority),

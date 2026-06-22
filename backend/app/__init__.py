@@ -66,6 +66,7 @@ def create_app(config_class=Config):
     from app.routes.problems import bp as problems_bp
     from app.routes.audit_logs import bp as audit_bp
     from app.routes.reports import bp as reports_bp
+    from app.routes.dashboard import bp as dashboard_bp
     from app.routes.health import bp as health_bp
     from app.routes.requests import bp as requests_bp
     from app.routes.changes import bp as changes_bp
@@ -80,6 +81,7 @@ def create_app(config_class=Config):
     app.register_blueprint(problems_bp)
     app.register_blueprint(audit_bp)
     app.register_blueprint(reports_bp)
+    app.register_blueprint(dashboard_bp)
     app.register_blueprint(health_bp)
     app.register_blueprint(requests_bp)
     app.register_blueprint(changes_bp)

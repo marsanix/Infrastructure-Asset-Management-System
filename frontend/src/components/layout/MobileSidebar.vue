@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
@@ -11,24 +11,25 @@ const ui = useUiStore()
 
 const menu = computed(() => menuForRole(auth.role))
 
-// Safety net: auto-close drawer on any route change (back/forward, programmatic, etc.)
-watch(() => route.fullPath, () => {
-  ui.closeMobileSidebar()
-})
+watch(() => route.fullPath, () => { ui.closeMobileSidebar() })
+
+const touchStart = ref(0)
+function onTouchStart(e) { touchStart.value = e.touches[0].clientX }
+function onTouchEnd(e) { if (touchStart.value > 0 && e.changedTouches[0].clientX - touchStart.value < -60) ui.closeMobileSidebar() }
 </script>
 
 <template>
   <transition name="fade">
     <div v-if="ui.mobileSidebarOpen" class="md:hidden fixed inset-0 z-40">
       <div class="absolute inset-0 bg-black/50" @click="ui.closeMobileSidebar()" />
-      <aside class="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-3 animate-slide-down">
+      <aside class="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border p-3 animate-slide-down" @touchstart="onTouchStart" @touchend="onTouchEnd">
         <div class="h-12 flex items-center gap-2 px-1 mb-2">
           <div class="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center font-bold">
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9h18M3 15h18M7 9v6M17 9v6"/></svg>
           </div>
           <p class="text-sm font-bold tracking-tight">IAMS</p>
         </div>
-        <nav class="space-y-1">
+        <nav class="space-y-1 overflow-y-auto">
           <router-link
             v-for="item in menu"
             :key="item.name"

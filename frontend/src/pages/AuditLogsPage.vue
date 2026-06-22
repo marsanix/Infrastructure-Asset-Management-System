@@ -14,6 +14,7 @@ import Pagination from '@/components/ui/Pagination.vue'
 import Button from '@/components/ui/Button.vue'
 import { formatDate } from '@/lib/utils'
 
+const { t } = useI18n()
 const data = ref([])
 const loading = ref(true)
 const error = ref(null)

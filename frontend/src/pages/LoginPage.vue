@@ -76,33 +76,33 @@ const year = computed(() => new Date().getFullYear())
         </div>
 
         <div class="mt-auto max-w-md">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-indigo-300/80 mb-3">Internal IT Operations</p>
+          <p class="text-[11px] uppercase tracking-[0.25em] text-indigo-300/80 mb-3">{{ t('auth.brandSubtitle') }}</p>
           <h2 class="text-4xl xl:text-5xl font-bold leading-[1.05] tracking-tight">
-            Kelola aset jaringan,<br>
-            <span class="text-indigo-300">tindak gangguan,</span><br>
-            telusuri akar masalah.
+            {{ t('auth.brandHeading1') }}<br>
+            <span class="text-indigo-300">{{ t('auth.brandHeading2') }}</span><br>
+            {{ t('auth.brandHeading3') }}
           </h2>
           <p class="mt-5 text-sm text-slate-300/90 leading-relaxed">
-            Dashboard internal untuk tim IT, terpusat, terdokumentasi, dan auditable.
+            {{ t('auth.brandTagline') }}
           </p>
 
           <div class="mt-10 grid grid-cols-3 gap-3 max-w-sm">
             <div class="rounded-lg bg-white/5 border border-white/10 p-3">
               <p class="text-2xl font-bold text-indigo-300">22</p>
-              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">Fitur</p>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">{{ t('auth.features') }}</p>
             </div>
             <div class="rounded-lg bg-white/5 border border-white/10 p-3">
               <p class="text-2xl font-bold text-amber-300">86</p>
-              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">API Endpoints</p>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">{{ t('auth.apiEndpoints') }}</p>
             </div>
             <div class="rounded-lg bg-white/5 border border-white/10 p-3">
               <p class="text-2xl font-bold text-rose-300">42</p>
-              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">Tests</p>
+              <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1">{{ t('auth.tests') }}</p>
             </div>
           </div>
         </div>
 
-        <p class="mt-12 text-[11px] text-slate-500">© {{ year }} IAMS · Prototype build</p>
+        <p class="mt-12 text-[11px] text-slate-500">© {{ year }} IAMS · {{ t('auth.prototypeBuild') }}</p>
       </div>
     </aside>
 
@@ -138,7 +138,7 @@ const year = computed(() => new Date().getFullYear())
           <div>
             <div class="flex items-center justify-between">
               <Label for="password">{{ t('auth.password') }}</Label>
-              <button type="button" class="text-xs text-primary hover:underline" data-testid="forgot-password-link">Lupa password?</button>
+              <button type="button" class="text-xs text-primary hover:underline" data-testid="forgot-password-link" @click="ui.pushToast({ title: t('auth.forgotPassword'), description: t('auth.forgotPasswordHint'), variant: 'info' })">{{ t('auth.forgotPassword') }}</button>
             </div>
             <div class="relative">
               <Input id="password" v-model="password" :type="showPwd ? 'text' : 'password'" placeholder="••••••••" autocomplete="current-password" data-testid="login-password-input" />
@@ -157,7 +157,7 @@ const year = computed(() => new Date().getFullYear())
 
           <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" v-model="remember" class="h-4 w-4 rounded border-border" data-testid="remember-checkbox" />
-            <span class="text-muted-foreground">Ingat email saya</span>
+            <span class="text-muted-foreground">{{ t('auth.rememberEmail') }}</span>
           </label>
 
           <Button type="submit" :loading="auth.loading" class="w-full" size="lg" data-testid="login-submit-btn">
@@ -168,14 +168,14 @@ const year = computed(() => new Date().getFullYear())
         </form>
 
         <div class="mt-7 rounded-lg border border-dashed border-border p-3 bg-secondary/40">
-          <p class="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Akun Demo</p>
+          <p class="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">{{ t('auth.demoAccount') }}</p>
           <div class="flex gap-2">
             <button class="flex-1 text-left rounded-md bg-card hover:border-primary border border-border px-3 py-2 transition-colors" data-testid="demo-admin-btn" @click="applyDemo('admin')">
-              <p class="text-xs font-semibold">Administrator</p>
+              <p class="text-xs font-semibold">{{ t('auth.admin') }}</p>
               <p class="text-[10px] text-muted-foreground mt-0.5">admin@iams.local</p>
             </button>
             <button class="flex-1 text-left rounded-md bg-card hover:border-primary border border-border px-3 py-2 transition-colors" data-testid="demo-operator-btn" @click="applyDemo('operator')">
-              <p class="text-xs font-semibold">Operator</p>
+              <p class="text-xs font-semibold">{{ t('auth.operator') }}</p>
               <p class="text-[10px] text-muted-foreground mt-0.5">operator@iams.local</p>
             </button>
           </div>

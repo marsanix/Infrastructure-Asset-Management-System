@@ -12,6 +12,7 @@ from app.utils.decorators import admin_only, admin_or_operator, require_csrf
 from app.utils.pagination import paginate
 
 bp = Blueprint('snipe_features', __name__, url_prefix='/api')
+MAX_ASSET_FILE_BYTES = 10 * 1024 * 1024
 
 # ── Asset Files ─────────────────────────────────────────────────────────────
 
@@ -32,13 +33,18 @@ def upload_file(asset_id):
     file = request.files.get('file')
     if not file:
         return jsonify({'error': 'No file provided'}), 400
+    if request.content_length and request.content_length > MAX_ASSET_FILE_BYTES:
+        return jsonify({'error': 'File too large'}), 413
+    data = file.read(MAX_ASSET_FILE_BYTES + 1)
+    if len(data) > MAX_ASSET_FILE_BYTES:
+        return jsonify({'error': 'File too large'}), 413
     af = AssetFile(
         asset_id=asset_id,
         filename=f'{uuid.uuid4().hex}_{file.filename}',
         original_name=file.filename,
         mime_type=file.mimetype,
-        size=file.content_length or 0,
-        data=file.read(),
+        size=len(data),
+        data=data,
     )
     db.session.add(af)
     db.session.commit()
@@ -148,6 +154,7 @@ def update_license(lic_id):
             v = data[f]
             setattr(lic, f, date.fromisoformat(v) if v else None)
     db.session.commit()
+    log_audit('UPDATE', 'software_license', resource_id=lic.id, status='success')
     return jsonify({'data': lic.to_dict()})
 
 @bp.route('/licenses/<int:lic_id>', methods=['DELETE'])
@@ -159,6 +166,7 @@ def delete_license(lic_id):
         return jsonify({'error': 'Not found'}), 404
     db.session.delete(lic)
     db.session.commit()
+    log_audit('DELETE', 'software_license', resource_id=lic_id, status='success')
     return jsonify({'message': 'Deleted'})
 
 # ── Checkout History ────────────────────────────────────────────────────────

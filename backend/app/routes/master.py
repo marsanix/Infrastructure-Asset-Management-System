@@ -13,6 +13,8 @@ from app.utils.audit import log_audit
 from app.utils.decorators import admin_only, admin_or_operator, require_csrf
 from app.utils.pagination import paginate
 
+from sqlalchemy.orm import selectinload
+
 bp = Blueprint('master', __name__, url_prefix='/api')
 
 # ── read-only (admin & operator) ────────────────────────────────────────────
@@ -44,7 +46,10 @@ def list_brands():
 @bp.route('/models', methods=['GET'])
 @admin_or_operator
 def list_models():
-    rows = DeviceModel.query.order_by(DeviceModel.name)
+    rows = DeviceModel.query.options(
+        selectinload(DeviceModel.brand),
+        selectinload(DeviceModel.category),
+    ).order_by(DeviceModel.name)
     return jsonify(paginate(rows))
 
 # ── Departments CRUD (admin only) ───────────────────────────────────────────

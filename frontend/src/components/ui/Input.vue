@@ -9,6 +9,7 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
   id: { type: String, default: undefined },
   autocomplete: { type: String, default: undefined },
+  ariaDescribedby: { type: String, default: undefined },
   class: { type: String, default: '' },
 })
 const emit = defineEmits(['update:modelValue'])
@@ -35,6 +36,7 @@ const cls = computed(() => {
     :placeholder="placeholder"
     :disabled="disabled"
     :autocomplete="autocomplete"
+    :aria-describedby="ariaDescribedby"
     :class="cls"
     @input="onInput"
   />

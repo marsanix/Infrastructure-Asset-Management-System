@@ -5,8 +5,11 @@ from flask import Blueprint, jsonify, request
 
 from app.extensions import db
 from app.models import Incident
+from sqlalchemy import or_
 from app.utils.decorators import admin_or_operator, audit_action, require_csrf, require_role
 from app.utils.pagination import paginate
+
+from sqlalchemy.orm import selectinload
 
 bp = Blueprint('incidents', __name__, url_prefix='/api/incidents')
 
@@ -42,11 +45,15 @@ def _next_code() -> str:
 @bp.route('', methods=['GET'])
 @admin_or_operator
 def list_incidents():
-    query = Incident.query
+    query = Incident.query.options(selectinload(Incident.assignee))
     if request.args.get('status'):
         query = query.filter_by(status=request.args.get('status'))
     if request.args.get('severity'):
         query = query.filter_by(severity=request.args.get('severity'))
+    search = (request.args.get('search') or '').strip()
+    if search:
+        pattern = f'%{search}%'
+        query = query.filter(or_(Incident.title.like(pattern), Incident.code.like(pattern)))
     rows = query.order_by(Incident.created_at.desc())
     return jsonify(paginate(rows))
 

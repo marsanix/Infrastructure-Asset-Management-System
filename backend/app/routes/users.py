@@ -2,11 +2,13 @@
 from flask import Blueprint, g, jsonify, request
 
 from app.extensions import db
-from app.models import User
+from app.models import Department, Role, User
 from app.utils.audit import log_audit
 from app.utils.decorators import admin_only, audit_action, require_csrf
 from app.utils.pagination import paginate
 from app.utils.security import hash_password
+
+from sqlalchemy.orm import selectinload
 
 bp = Blueprint('users', __name__, url_prefix='/api/users')
 
@@ -14,7 +16,10 @@ bp = Blueprint('users', __name__, url_prefix='/api/users')
 @bp.route('', methods=['GET'])
 @admin_only
 def list_users():
-    users = User.query.order_by(User.name)
+    users = User.query.options(
+        selectinload(User.role),
+        selectinload(User.department),
+    ).order_by(User.name)
     return jsonify(paginate(users))
 
 
@@ -42,8 +47,6 @@ def create_user():
     )
     db.session.add(user)
     db.session.commit()
-    log_audit('CREATE', 'user', resource_id=user.id, status='success',
-              metadata={'created_by': g.current_user_id})
     return jsonify({'data': user.to_dict()}), 201
 
 
@@ -97,6 +100,4 @@ def delete_user(user_id):
         return jsonify({'error': 'Cannot delete the last Administrator.'}), 409
     db.session.delete(user)
     db.session.commit()
-    log_audit('DELETE_USER', 'user', resource_id=user_id, status='success',
-              metadata={'email': user.email, 'name': user.name})
     return jsonify({'message': 'User deleted'})

@@ -8,7 +8,9 @@ import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Label from '@/components/ui/Label.vue'
 import Select from '@/components/ui/Select.vue'
+import Badge from '@/components/ui/Badge.vue'
 import Barcode from '@/components/ui/Barcode.vue'
+import { formatDate } from '@/lib/utils'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -44,6 +46,7 @@ const form = ref({
 
 watch(() => props.modelValue, (open) => {
   if (!open) return
+  fetchStatusLabels()
   if (props.asset) {
     form.value = {
       asset_tag: props.asset.asset_tag || '',
@@ -64,6 +67,7 @@ watch(() => props.modelValue, (open) => {
     }
     fetchCredentials()
     fetchFiles()
+    fetchHistory()
   } else {
     form.value = {
       asset_tag: '', serial_number: '', po_number: '', model_id: '', location_id: '', user_id: '',
@@ -74,7 +78,26 @@ watch(() => props.modelValue, (open) => {
   }
 })
 
-const statusOpts = ['Active', 'Available', 'Repair', 'Disposed'].map((s) => ({ label: s, value: s }))
+const statusOpts = ref([
+  { label: 'Active', value: 'Active' },
+  { label: 'Available', value: 'Available' },
+  { label: 'Repair', value: 'Repair' },
+  { label: 'Disposed', value: 'Disposed' },
+])
+
+async function fetchStatusLabels() {
+  try {
+    const res = await apiClient.listStatusLabels()
+    const custom = (res.data?.data || res.data || []).map(s => ({ label: s.name, value: s.name }))
+    statusOpts.value = [
+      { label: 'Active', value: 'Active' },
+      { label: 'Available', value: 'Available' },
+      { label: 'Repair', value: 'Repair' },
+      { label: 'Disposed', value: 'Disposed' },
+      ...custom,
+    ]
+  } catch (_) {}
+}
 const locationOpts = computed(() => props.locations.map((l) => ({ label: l.name, value: String(l.id) })))
 const modelOpts = computed(() => props.models.map((m) => ({ label: `${m.brand_name} ${m.name}`, value: String(m.id) })))
 const userOpts = computed(() => [{ label: 'IT Inventory / Server', value: '' }, ...props.users.map((u) => ({ label: u.name, value: String(u.id) }))])
@@ -168,6 +191,55 @@ async function deleteCredential(credId) {
   } catch (err) { ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' }) }
 }
 
+const checkoutOpen = ref(false)
+const checkoutForm = ref({ user_id: '', expected_return_date: '', notes: '' })
+const checkoutLoading = ref(false)
+const history = ref([])
+const historyOpen = ref(false)
+
+async function fetchHistory() {
+  if (!props.asset?.id) return
+  try { const r = await apiClient.assetHistory(props.asset.id); history.value = r.data?.data || r.data || [] }
+  catch (_) { history.value = [] }
+}
+
+async function doCheckout() {
+  if (!props.asset?.id || !checkoutForm.value.user_id) return
+  checkoutLoading.value = true
+  try {
+    await apiClient.checkoutAsset(props.asset.id, {
+      user_id: Number(checkoutForm.value.user_id),
+      expected_return_date: checkoutForm.value.expected_return_date || undefined,
+      notes: checkoutForm.value.notes.trim() || undefined,
+    })
+    ui.pushToast({ title: t('common.success'), description: t('checkout.checkoutSuccess'), variant: 'success' })
+    checkoutOpen.value = false
+    checkoutForm.value = { user_id: '', expected_return_date: '', notes: '' }
+    fetchHistory()
+    emit('saved')
+  } catch (err) {
+    ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' })
+  } finally {
+    checkoutLoading.value = false
+  }
+}
+
+async function doCheckin() {
+  if (!props.asset?.id) return
+  checkoutLoading.value = true
+  try {
+    await apiClient.checkinAsset(props.asset.id, { notes: checkoutForm.value.notes.trim() || undefined })
+    ui.pushToast({ title: t('common.success'), description: t('checkout.checkinSuccess'), variant: 'success' })
+    checkoutForm.value = { user_id: '', expected_return_date: '', notes: '' }
+    fetchHistory()
+    emit('saved')
+  } catch (err) {
+    ui.pushToast({ title: t('common.failed'), description: err.data?.error || t('toast.failed'), variant: 'destructive' })
+  } finally {
+    checkoutLoading.value = false
+  }
+}
+
 async function submit() {
   const payload = {
     asset_tag: form.value.asset_tag.trim(),
@@ -229,6 +301,9 @@ async function submit() {
     <div v-if="!isCreate && asset?.asset_tag" class="flex justify-center mb-3 p-2 bg-white rounded-md border">
       <Barcode :value="asset.asset_tag" :size="180" class="text-black" />
     </div>
+    <div class="mb-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+      <span class="font-medium text-foreground">Data wajib:</span> Asset Tag, Serial Number, Model, dan Lokasi. Detail jaringan, file, dan kredensial bisa dilengkapi setelah aset tersimpan.
+    </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px]">
       <div>
         <Label for="af-tag" class="mb-0.5 text-xs">Asset Tag *</Label>
@@ -272,7 +347,7 @@ async function submit() {
       </div>
 
       <div class="sm:col-span-2 border-t border-border pt-2 mt-0.5">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Detail Jaringan</p>
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Detail Jaringan <span class="font-normal normal-case tracking-normal">(opsional)</span></p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>
             <Label for="af-ip" class="mb-0.5 text-xs">IP Address</Label>
@@ -294,52 +369,101 @@ async function submit() {
       </div>
     </div>
 
-    <template #footer>
-      <!-- Credentials — pinned above buttons, always visible -->
-      <div v-if="!isCreate" class="w-full text-left border-t border-border pt-2 pb-1 mb-1">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Kredensial Perangkat</p>
-        <div v-if="credentials.length" class="space-y-1 mb-1.5">
-          <div v-for="cred in credentials" :key="cred.id" :class="['flex items-center gap-2 rounded-md border px-2 py-1 transition-colors', editingCredId === cred.id ? 'border-primary bg-primary/5' : 'border-border bg-muted/30']">
-            <span class="text-[11px] font-medium">{{ cred.credential_type }}</span>
-            <span class="text-[10px] text-muted-foreground">{{ cred.username || '-' }}</span>
+    <!-- Edit-only sections in scrollable body -->
+    <template v-if="!isCreate">
+
+      <!-- Credentials -->
+      <div class="border-t border-border pt-3 mt-3">
+        <div class="mb-2 flex items-center justify-between gap-2">
+          <p class="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Kredensial Perangkat</p>
+          <Badge variant="muted" class="text-[10px]">Terenkripsi</Badge>
+        </div>
+        <div v-if="credentials.length" class="space-y-1 mb-2">
+          <div v-for="cred in credentials" :key="cred.id" :class="['flex flex-wrap items-center gap-1.5 rounded-md border px-2 py-1 transition-colors', editingCredId === cred.id ? 'border-primary bg-primary/5' : 'border-border bg-muted/30']">
+            <span class="text-[11px] font-medium min-w-[60px]">{{ cred.credential_type }}</span>
+            <span class="text-[11px] text-muted-foreground min-w-[40px]">{{ cred.username || '-' }}</span>
             <span class="text-[11px] font-mono text-muted-foreground">••••••••</span>
             <input v-if="credReveal[cred.id]" :value="credReveal[cred.id]" readonly class="text-[11px] font-mono bg-transparent w-20" />
-            <span class="flex-1"></span>
-            <Button variant="ghost" size="xs" class="h-6 w-6 p-0 shrink-0" @click="revealCredential(cred.id)" title="Lihat">👁</Button>
-            <Button variant="ghost" size="xs" class="h-6 w-6 p-0 shrink-0" @click="editCredential(cred)" title="Edit">✎</Button>
-            <Button variant="ghost" size="xs" class="h-6 w-6 p-0 shrink-0 text-destructive" @click="deleteCredential(cred.id)" title="Hapus">✕</Button>
+            <span class="flex-1 min-w-[20px]"></span>
+            <div class="flex items-center gap-0.5 ml-auto">
+              <Button variant="ghost" size="xs" class="h-6 w-6 p-0" @click="revealCredential(cred.id)" title="Lihat">👁</Button>
+              <Button variant="ghost" size="xs" class="h-6 w-6 p-0" @click="editCredential(cred)" title="Edit">✎</Button>
+              <Button variant="ghost" size="xs" class="h-6 w-6 p-0 text-destructive" @click="deleteCredential(cred.id)" title="Hapus">✕</Button>
+            </div>
           </div>
         </div>
-        <div class="grid grid-cols-4 sm:grid-cols-5 gap-1">
-          <Select v-model="credForm.credential_type" :options="credTypeOpts" class="h-7 text-[11px] px-1.5" />
-          <Input v-model="credForm.username" placeholder="User" class="h-7 text-[11px] px-1.5" />
-          <Input v-model="credForm.password" type="password" placeholder="Pass" autocomplete="off" class="h-7 text-[11px] px-1.5 col-span-2 sm:col-span-2" />
-          <Button size="xs" class="h-7 text-[10px] sm:col-span-1" :disabled="!editingCredId && !credForm.password.trim()" @click="addOrUpdateCredential">{{ editingCredId ? 'Update' : '+ Tambah' }}</Button>
-          <Button v-if="editingCredId" variant="ghost" size="xs" class="h-7 text-[10px]" @click="cancelEdit">Batal</Button>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-1.5">
+          <Select v-model="credForm.credential_type" :options="credTypeOpts" class="h-8 text-[12px] px-1.5" />
+          <Input v-model="credForm.username" placeholder="Username" class="h-8 text-[12px] px-1.5" />
+          <Input v-model="credForm.password" type="password" placeholder="Password" autocomplete="off" class="h-8 text-[12px] px-1.5" />
+          <div class="flex gap-1">
+            <Button size="xs" class="h-8 text-[11px] flex-1" :disabled="!editingCredId && !credForm.password.trim()" @click="addOrUpdateCredential">{{ editingCredId ? 'Update' : '+ Tambah' }}</Button>
+            <Button v-if="editingCredId" variant="ghost" size="xs" class="h-8 text-[11px]" @click="cancelEdit">Batal</Button>
+          </div>
         </div>
       </div>
 
-      <!-- File Upload (edit only) -->
-      <div class="w-full text-left border-t border-border pt-2 mt-1">
-        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{{ isCreate ? '' : 'File Upload' }}</p>
-        <div v-if="!isCreate" class="flex items-center gap-2">
-          <input ref="fileInput" type="file" class="text-[11px] flex-1" @change="uploadFile" />
-          <span v-if="uploading" class="text-[10px] text-muted-foreground">Uploading...</span>
+      <!-- File Upload -->
+      <div class="border-t border-border pt-3 mt-3">
+        <p class="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">File Upload</p>
+        <p class="mb-1.5 text-[11px] text-muted-foreground">Maksimal 10 MB per file. Simpan dokumen penting saja.</p>
+        <div class="flex items-center gap-2">
+          <input ref="fileInput" type="file" class="text-[12px] flex-1 min-w-0" @change="uploadFile" />
+          <span v-if="uploading" class="text-[11px] text-muted-foreground whitespace-nowrap">Uploading...</span>
         </div>
-        <div v-if="files.length" class="space-y-0.5 mt-1">
-          <div v-for="f in files" :key="f.id" class="flex items-center gap-2 text-[10px] bg-muted/30 rounded px-2 py-0.5">
+        <div v-if="files.length" class="space-y-0.5 mt-1.5">
+          <div v-for="f in files" :key="f.id" class="flex items-center gap-2 text-[11px] bg-muted/30 rounded px-2 py-1">
             <span class="flex-1 truncate">{{ f.original_name }}</span>
-            <a :href="'/api/assets/'+asset?.id+'/files/'+f.id" target="_blank" class="text-primary hover:underline">Unduh</a>
-            <Button variant="ghost" size="xs" class="h-5 w-5 p-0 text-destructive" @click="deleteFile(f.id)">✕</Button>
+            <a :href="'/api/assets/'+asset?.id+'/files/'+f.id" target="_blank" class="text-primary hover:underline shrink-0">Unduh</a>
+            <Button variant="ghost" size="xs" class="h-5 w-5 p-0 shrink-0 text-destructive" @click="deleteFile(f.id)">✕</Button>
           </div>
         </div>
       </div>
-      <div class="flex items-center justify-end gap-2 w-full">
-        <Button variant="ghost" size="sm" @click="$emit('update:modelValue', false)">Batal</Button>
-        <Button size="sm" :loading="loading" :disabled="!form.asset_tag || !form.serial_number || !form.model_id || !form.location_id" @click="submit">
-          {{ isCreate ? 'Simpan Aset' : 'Perbarui' }}
-        </Button>
+
+      <!-- Checkout / Checkin -->
+      <div v-if="asset?.id" class="border-t border-border pt-3 mt-3">
+        <button class="flex items-center gap-1 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors w-full text-left" @click="checkoutOpen = !checkoutOpen; if (checkoutOpen) { fetchHistory() }">
+          {{ t('checkout.checkout') }} / {{ t('checkout.checkin') }}
+          <svg class="h-3.5 w-3.5 transition-transform shrink-0" :class="checkoutOpen ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <template v-if="checkoutOpen">
+          <div class="mt-2 space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <Label class="mb-0.5 text-[11px]">{{ t('checkout.selectUser') }}</Label>
+                <Select v-model="checkoutForm.user_id" :options="userOpts" :placeholder="t('checkout.selectUser')" class="h-8 text-[12px] px-1.5" />
+              </div>
+              <div>
+                <Label class="mb-0.5 text-[11px]">{{ t('checkout.expectedReturn') }}</Label>
+                <Input v-model="checkoutForm.expected_return_date" type="date" class="h-8 text-[12px] px-1.5" />
+              </div>
+            </div>
+            <Input v-model="checkoutForm.notes" :placeholder="t('checkout.notes')" class="h-8 text-[12px] px-1.5" />
+            <div class="flex gap-1.5">
+              <Button size="sm" class="h-8 text-[12px]" :loading="checkoutLoading" :disabled="!checkoutForm.user_id" @click="doCheckout">{{ t('checkout.checkoutAsset') }}</Button>
+              <Button size="sm" variant="ghost" class="h-8 text-[12px] text-destructive" :loading="checkoutLoading" @click="doCheckin">{{ t('checkout.checkinAsset') }}</Button>
+            </div>
+          </div>
+
+          <div v-if="history.length" class="mt-2 space-y-1 max-h-32 overflow-y-auto">
+            <p class="text-[11px] font-semibold text-muted-foreground">{{ t('checkout.history') }}</p>
+            <div v-for="h in history" :key="h.id" class="flex flex-wrap items-center gap-1.5 text-[11px] bg-muted/30 rounded px-2 py-1">
+              <Badge :variant="h.action === 'checkout' ? 'warning' : 'success'" class="text-[10px] !px-1 !py-0 shrink-0">{{ h.action }}</Badge>
+              <span v-if="h.user_name" class="text-foreground/80">{{ h.user_name }}</span>
+              <span v-if="h.expected_return_date" class="text-muted-foreground ml-auto">{{ h.expected_return_date }}</span>
+              <span class="text-muted-foreground">{{ formatDate(h.created_at) }}</span>
+            </div>
+          </div>
+          <p v-else class="text-[11px] text-muted-foreground mt-1.5">{{ t('checkout.noHistory') }}</p>
+        </template>
       </div>
+    </template>
+
+    <template #footer>
+      <Button variant="ghost" size="sm" @click="$emit('update:modelValue', false)">Batal</Button>
+      <Button size="sm" :loading="loading" :disabled="!form.asset_tag || !form.serial_number || !form.model_id || !form.location_id" @click="submit">
+        {{ isCreate ? 'Simpan Aset' : 'Perbarui' }}
+      </Button>
     </template>
   </Dialog>
 </template>

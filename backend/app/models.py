@@ -48,7 +48,7 @@ class Location(db.Model, TimestampMixin):
     __tablename__ = 'locations'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     assets: Mapped[list['Asset']] = relationship('Asset', back_populates='location')
@@ -215,9 +215,6 @@ class ChangeRequest(db.Model, TimestampMixin):
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
         }
-        if include_sensitive:
-            data['password_hash'] = '<redacted>'
-        return data
 
 
 class Asset(db.Model, TimestampMixin):

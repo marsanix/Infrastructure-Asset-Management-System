@@ -120,6 +120,10 @@ const put = (path, body, opts = {}) => request('PUT', path, body, opts)
 const patch = (path, body, opts = {}) => request('PATCH', path, body, opts)
 const del = (path, opts = {}) => request('DELETE', path, null, opts)
 
+function qs(params = {}, defaults = {}) {
+  return new URLSearchParams({ ...defaults, ...params }).toString()
+}
+
 export const apiClient = {
   base: BASE,
 
@@ -130,7 +134,7 @@ export const apiClient = {
   me: () => get('/auth/me', { noRedirect: true }),
 
   // Users / Roles (admin)
-  listUsers: () => get('/users?per_page=1000'),
+  listUsers: (params = {}) => get(`/users?${qs(params, { per_page: 100 })}`),
   createUser: (payload) => post('/users', payload),
   updateUser: (id, payload) => put(`/users/${id}`, payload),
   deleteUser: (id) => del(`/users/${id}`),
@@ -139,8 +143,8 @@ export const apiClient = {
 
   // Assets
   listAssets: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/assets${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 25 })
+    return get(`/assets${query ? `?${query}` : ''}`)
   },
   createAsset: (payload) => post('/assets', payload),
   updateAsset: (id, payload) => put(`/assets/${id}`, payload),
@@ -154,8 +158,8 @@ export const apiClient = {
 
   // Incidents
   listIncidents: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/incidents${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 25 })
+    return get(`/incidents${query ? `?${query}` : ''}`)
   },
   createIncident: (payload) => post('/incidents', payload),
   updateIncident: (id, payload) => put(`/incidents/${id}`, payload),
@@ -163,8 +167,8 @@ export const apiClient = {
 
   // Problems
   listProblems: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/problems${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 25 })
+    return get(`/problems${query ? `?${query}` : ''}`)
   },
   createProblem: (payload) => post('/problems', payload),
   updateProblem: (id, payload) => put(`/problems/${id}`, payload),
@@ -178,40 +182,40 @@ export const apiClient = {
 
   // Master data
   listDepartments: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/departments${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 100 })
+    return get(`/departments${query ? `?${query}` : ''}`)
   },
   createDepartment: (payload) => post('/departments', payload),
   updateDepartment: (id, payload) => put(`/departments/${id}`, payload),
   deleteDepartment: (id) => del(`/departments/${id}`),
 
   listLocations: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/locations${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 100 })
+    return get(`/locations${query ? `?${query}` : ''}`)
   },
   createLocation: (payload) => post('/locations', payload),
   updateLocation: (id, payload) => put(`/locations/${id}`, payload),
   deleteLocation: (id) => del(`/locations/${id}`),
 
   listCategories: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/categories${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 100 })
+    return get(`/categories${query ? `?${query}` : ''}`)
   },
   createCategory: (payload) => post('/categories', payload),
   updateCategory: (id, payload) => put(`/categories/${id}`, payload),
   deleteCategory: (id) => del(`/categories/${id}`),
 
   listBrands: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/brands${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 100 })
+    return get(`/brands${query ? `?${query}` : ''}`)
   },
   createBrand: (payload) => post('/brands', payload),
   updateBrand: (id, payload) => put(`/brands/${id}`, payload),
   deleteBrand: (id) => del(`/brands/${id}`),
 
   listModels: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/models${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 100 })
+    return get(`/models${query ? `?${query}` : ''}`)
   },
   createModel: (payload) => post('/models', payload),
   updateModel: (id, payload) => put(`/models/${id}`, payload),
@@ -219,8 +223,8 @@ export const apiClient = {
 
   // Requests
   listRequests: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/requests${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 25 })
+    return get(`/requests${query ? `?${query}` : ''}`)
   },
   createRequest: (payload) => post('/requests', payload),
   updateRequest: (id, payload) => put(`/requests/${id}`, payload),
@@ -228,8 +232,8 @@ export const apiClient = {
 
   // Changes
   listChanges: (params = {}) => {
-    const qs = new URLSearchParams({ ...params, per_page: params.per_page || 1000 }).toString()
-    return get(`/changes${qs ? `?${qs}` : ''}`)
+    const query = qs(params, { per_page: 25 })
+    return get(`/changes${query ? `?${query}` : ''}`)
   },
   createChange: (payload) => post('/changes', payload),
   updateChange: (id, payload) => put(`/changes/${id}`, payload),
@@ -247,14 +251,25 @@ export const apiClient = {
   },
   deleteAssetFile: (id, fid) => del(`/assets/${id}/files/${fid}`),
 
+  // Status Labels
+  listStatusLabels: () => get('/status-labels'),
+  createStatusLabel: (p) => post('/status-labels', p),
+  deleteStatusLabel: (id) => del(`/status-labels/${id}`),
+
   // Licenses
-  listLicenses: (params = {}) => { const qs = new URLSearchParams({ ...params, per_page: 1000 }).toString(); return get(`/licenses${qs ? '?'+qs : ''}`) },
+  listLicenses: (params = {}) => { const query = qs(params, { per_page: 25 }); return get(`/licenses${query ? '?'+query : ''}`) },
   createLicense: (p) => post('/licenses', p),
   updateLicense: (id, p) => put(`/licenses/${id}`, p),
   deleteLicense: (id) => del(`/licenses/${id}`),
 
+  // Checkout
+  checkoutAsset: (id, p) => post(`/assets/${id}/checkout`, p),
+  checkinAsset: (id, p) => post(`/assets/${id}/checkin`, p),
+  assetHistory: (id) => get(`/assets/${id}/history`),
+
   // Reports
-  fullAssetReport: () => get('/reports/assets/full'),
+  dashboardSummary: () => get('/dashboard/summary'),
+  fullAssetReport: (params = {}) => get(`/reports/assets/full?${qs(params, { per_page: 500 })}`),
   assetsWarrantyExpiring: (months = 3) => get(`/reports/assets/warranty-expiring?months=${months}`),
 }
 

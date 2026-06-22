@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useLocaleStore } from '@/stores/locale'
+import { useI18n } from 'vue-i18n'
 import { computed, onMounted, onBeforeUnmount } from 'vue'
 import Button from '@/components/ui/Button.vue'
 import TextReveal from '@/components/ui/TextReveal.vue'
@@ -12,6 +13,7 @@ import { motion } from 'motion-v'
 const router = useRouter()
 const auth = useAuthStore()
 const locale = useLocaleStore()
+const { t: te } = useI18n()
 
 function goLogin() { router.push({ name: 'login' }) }
 function goDashboard() { router.push({ name: 'dashboard' }) }
@@ -50,15 +52,18 @@ const t = computed(() => ({
     heading: _('Semua yang Dibutuhkan Tim IT', 'Everything IT Teams Need'),
     sub: _('Dari manajemen aset hingga audit log — terlindungi, terdokumentasi, siap diaudit.', 'From asset management to audit logs — secure, documented, audit-ready.'),
     items: [
-      { icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z M3.3 7l8.7 5 8.7-5 M12 22V12', title: _('Manajemen Aset', 'Asset Management'), desc: _('CRUD aset lengkap, serial number unique, network detail, credential AES-256-GCM.', 'Full asset CRUD, unique serial numbers, network details, AES-256-GCM credentials.') },
+      { icon: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z M3.3 7l8.7 5 8.7-5 M12 22V12', title: _('Manajemen Aset', 'Asset Management'), desc: _('CRUD aset lengkap, serial number unique, network detail, barcode SVG, file upload, credential AES-256-GCM, status label custom, checkout/checkin.', 'Full asset CRUD, unique serial numbers, network details, SVG barcode, file upload, AES-256-GCM credentials, custom status labels, check-out/in.') },
       { icon: 'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z M12 9v4 M12 17h.01', title: _('Insiden & Problem', 'Incidents & Problems'), desc: _('ITSM workflow: tracking insiden, root cause analysis, severity & priority.', 'ITSM workflow: incident tracking, root cause analysis, severity & priority.') },
       { icon: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M8 2h8v4H8z M9 14h.01 M9 17h.01', title: _('Request & Change', 'Request & Change'), desc: _('7 tipe request + Change management approve/reject workflow.', '7 request types + Change management with approve/reject workflow.') },
-      { icon: 'M9 12l2 2 4-4 M7.835 4.697a3.42 3.42 0 0 0 1.946-.806 3.42 3.42 0 0 1 4.438 0 3.42 3.42 0 0 0 1.946.806 3.42 3.42 0 0 1 3.138 3.138 3.42 3.42 0 0 0 .806 1.946 3.42 3.42 0 0 1 0 4.438 3.42 3.42 0 0 0-.806 1.946 3.42 3.42 0 0 1-3.138 3.138 3.42 3.42 0 0 0-1.946.806 3.42 3.42 0 0 1-4.438 0 3.42 3.42 0 0 0-1.946-.806 3.42 3.42 0 0 1-3.138-3.138 3.42 3.42 0 0 0-.806-1.946 3.42 3.42 0 0 1 0-4.438 3.42 3.42 0 0 0 .806-1.946 3.42 3.42 0 0 1 3.138-3.138z', title: _('Security Hardened', 'Security Hardened'), desc: _('OWASP Top 10, JWT, CSRF, CORS, bcrypt, AES-256-GCM, rate limiting.', 'OWASP Top 10, JWT, CSRF, CORS, bcrypt, AES-256-GCM, rate limiting.') },
+      { icon: 'M9 12l2 2 4-4 M7.835 4.697a3.42 3.42 0 0 0 1.946-.806 3.42 3.42 0 0 1 4.438 0 3.42 3.42 0 0 0 1.946.806 3.42 3.42 0 0 1 3.138 3.138 3.42 3.42 0 0 0 .806 1.946 3.42 3.42 0 0 1 0 4.438 3.42 3.42 0 0 0-.806 1.946 3.42 3.42 0 0 1-3.138 3.138 3.42 3.42 0 0 0-1.946.806 3.42 3.42 0 0 1-4.438 0 3.42 3.42 0 0 0-1.946-.806 3.42 3.42 0 0 1-3.138-3.138 3.42 3.42 0 0 0-.806-1.946 3.42 3.42 0 0 1 0-4.438 3.42 3.42 0 0 0 .806-1.946 3.42 3.42 0 0 1 3.138-3.138z', title: _('Security & License', 'Security & License'), desc: _('OWASP Top 10, JWT, CSRF, CORS, bcrypt, AES-256-GCM, rate limiting, software license tracking.', 'OWASP Top 10, JWT, CSRF, CORS, bcrypt, AES-256-GCM, rate limiting, software license tracking.') },
       { icon: 'M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122', title: _('i18n & Theme', 'i18n & Theme'), desc: _('Bahasa ID/EN realtime, dark/light mode, View Transitions API 120fps.', 'ID/EN realtime switch, dark/light mode, View Transitions API 120fps.') },
       { icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', title: _('Role-Based Access', 'Role-Based Access'), desc: _('Admin full control, Operator limited. Server-side enforcement.', 'Admin full control, Operator limited. Server-side enforcement.') },
     ]
   },
   previewTitle: _('Dashboard Ringkas & Informatif', 'Compact & Informative Dashboard'),
+  previewLabel: _('Preview', 'Preview'),
+  previewLive: _('Live Demo', 'Live Demo'),
+  previewDesc: _('Tampilan dashboard sebenarnya setelah login', 'Actual dashboard view after login'),
   faq: {
     title: 'FAQ',
     heading: _('Pertanyaan Umum', 'Frequently Asked Questions'),
@@ -95,15 +100,15 @@ function onScroll() {
 }
 
 const kpis = [
-  { label: 'Total Aset', val: '9', colorClass: 'text-primary' },
-  { label: 'Insiden Terbuka', val: '3', colorClass: 'text-warning' },
-  { label: 'Problem Aktif', val: '2', colorClass: 'text-info' },
-  { label: 'Status Jaringan', val: 'Stabil', colorClass: 'text-success' },
+  { label: _('Total Aset', 'Total Assets'), val: '8', colorClass: 'text-primary' },
+  { label: _('Insiden Terbuka', 'Open Incidents'), val: '3', colorClass: 'text-warning' },
+  { label: _('Problem Aktif', 'Active Problems'), val: '2', colorClass: 'text-info' },
+  { label: _('Status Jaringan', 'Network Status'), val: _('Stabil', 'Stable'), colorClass: 'text-success' },
 ]
 const status = [
-  { label: 'Active', val: 5, c: 'bg-success' },
-  { label: 'Available', val: 3, c: 'bg-info' },
-  { label: 'Repair', val: 1, c: 'bg-warning' },
+  { label: _('Active', 'Active'), val: 5, c: 'bg-success' },
+  { label: _('Available', 'Available'), val: 1, c: 'bg-info' },
+  { label: _('Repair', 'Repair'), val: 1, c: 'bg-warning' },
 ]
 </script>
 
@@ -145,7 +150,7 @@ const status = [
         </p>
         <div class="mt-10 flex items-center justify-center gap-4 flex-wrap">
           <Button size="lg" class="px-8 h-12 text-base" @click="goLogin">{{ t.hero.cta1 }}</Button>
-          <Button variant="outline" size="lg" class="px-8 h-12 text-base" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">{{ t.hero.cta2 }}</Button>
+          <Button variant="outline" size="lg" class="px-8 h-12 text-base" @click="() => document.getElementById('features').scrollIntoView({behavior:'smooth'})">{{ t.hero.cta2 }}</Button>
         </div>
         <div class="mt-16 grid grid-cols-3 gap-6 max-w-lg mx-auto">
           <div v-for="s in t.stats" :key="s.label" class="text-center">
@@ -211,7 +216,7 @@ const status = [
         <svg class="h-8 w-8 text-primary/30 mx-auto mb-4" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151C7.563 6.068 6 8.789 6 11h4v10H0z"/></svg>
         <blockquote>
           <p class="text-lg sm:text-xl font-medium leading-relaxed text-foreground/90">
-            {{ _('"Memenuhi 100% PRD dengan 29 automated tests, security hardened, dan full RBAC. Siap digunakan untuk manajemen aset IT skala enterprise."', '"100% PRD compliant with 29 automated tests, security hardened, and full RBAC. Ready for enterprise-scale IT asset management."') }}
+            {{ _('"Memenuhi 100% PRD dengan 42 automated tests, security hardened, full RBAC, dan fitur Snipe-IT: license, checkout, barcode, status label. Siap untuk manajemen aset IT skala enterprise."', '"100% PRD compliant with 42 automated tests, security hardened, full RBAC, and Snipe-IT features: license, checkout, barcode, status labels. Ready for enterprise-scale IT asset management."') }}
           </p>
         </blockquote>
         <div class="mt-6 flex items-center justify-center gap-3">
@@ -227,9 +232,9 @@ const status = [
     <!-- Dashboard Preview -->
     <section class="max-w-5xl mx-auto px-4 sm:px-6 pb-20 sm:pb-28">
       <div class="text-center mb-10">
-        <p class="text-[10px] uppercase tracking-[0.25em] text-primary font-semibold">Preview</p>
+        <p class="text-[10px] uppercase tracking-[0.25em] text-primary font-semibold">{{ t.previewLabel }}</p>
         <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2">{{ t.previewTitle }}</h2>
-        <p class="text-xs text-muted-foreground mt-2">{{ _('Tampilan dashboard sebenarnya setelah login', 'Actual dashboard view after login') }}</p>
+        <p class="text-xs text-muted-foreground mt-2">{{ t.previewDesc }}</p>
       </div>
       <div class="rounded-2xl border border-border bg-card shadow-lg overflow-hidden">
         <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-border bg-muted/30">
@@ -237,7 +242,7 @@ const status = [
           <span class="h-2.5 w-2.5 rounded-full bg-amber-400/60"></span>
           <span class="h-2.5 w-2.5 rounded-full bg-green-400/60"></span>
           <span class="ml-3 text-[10px] text-muted-foreground hidden sm:inline">localhost:3000/dashboard</span>
-          <span class="ml-auto text-[10px] text-primary font-semibold">{{ _('Live Demo', 'Live Demo') }}</span>
+          <span class="ml-auto text-[10px] text-primary font-semibold">{{ t.previewLive }}</span>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-[48px_1fr]">
           <div class="hidden lg:flex flex-col items-center gap-2 py-3 border-r border-border bg-card">
@@ -316,7 +321,7 @@ const status = [
     <button
       id="scroll-top"
       class="fixed bottom-6 right-6 z-50 h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg grid place-items-center opacity-0 pointer-events-none transition-opacity duration-300 hover:scale-110"
-      onclick="window.scrollTo({top:0,behavior:'smooth'})"
+      @click="() => window.scrollTo({top:0,behavior:'smooth'})"
       aria-label="Scroll to top"
     >
       <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>

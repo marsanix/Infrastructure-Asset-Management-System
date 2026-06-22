@@ -7,6 +7,7 @@ const props = defineProps({
   options: { type: Array, default: () => [] }, // [{label,value}]
   placeholder: { type: String, default: 'Pilih...' },
   disabled: { type: Boolean, default: false },
+  ariaLabel: { type: String, default: undefined },
   class: { type: String, default: '' },
 })
 const emit = defineEmits(['update:modelValue'])
@@ -26,7 +27,7 @@ const cls = computed(() => {
 </script>
 <template>
   <div class="relative">
-    <select :value="modelValue" :disabled="disabled" :class="cls" @change="onChange">
+    <select :value="modelValue" :disabled="disabled" :aria-label="ariaLabel || placeholder" :class="cls" @change="onChange">
       <option value="" disabled>{{ placeholder }}</option>
       <option v-for="opt in options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
     </select>

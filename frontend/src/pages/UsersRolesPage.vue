@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import apiClient from '@/services/apiClient'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -15,6 +16,7 @@ import UserFormDialog from '@/components/users/UserFormDialog.vue'
 import { useUiStore } from '@/stores/ui'
 import { formatDate } from '@/lib/utils'
 
+const { t } = useI18n()
 const ui = useUiStore()
 
 const data = ref([])

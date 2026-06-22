@@ -33,7 +33,7 @@ const menu = computed(() => menuForRole(auth.role).map(m => ({ ...m, label: m.i1
       </div>
     </div>
 
-    <nav class="flex-1 p-2 space-y-0.5">
+    <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
       <router-link
         v-for="item in menu"
         :key="item.name"

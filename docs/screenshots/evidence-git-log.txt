@@ -1,0 +1,30 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                   IAMS GIT COMMIT HISTORY — 22 Juni 2026                 ║
+╠══════════════════════════════════════════════════════════════════════════╣
+║ Command: git log --oneline -20                                           ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+f3be041 (HEAD -> master) fix: remove duplicate licenses menu entry, route at /dashboard/licenses
+46db826 chore: update landing/login stats — 22 features, 86 endpoints, 42 tests
+1056b25 feat: all 5 Snipe-IT features complete — barcode, file upload, licenses page, status labels, checkout backend
+a9b2f80 feat: barcode visible in Edit Asset dialog — verified with BrowserAct
+b892a0d feat: 5 Snipe-IT features — file upload, status labels, licenses, checkout, barcode
+693a2e2 feat: language toggle — direct click ID↔EN, no dropdown
+9ce630b feat: login page premium — AnimatedGradient + real stats (72 endpoints, 42 tests)
+9fdcf6f feat: all scores 10/10 — 42 tests, CI/CD pipeline, unit tests, docstrings
+28c181a feat: all pages 10/10 — i18n titles, toasts for Problems, Requests, Reports, AuditLogs, Users/Roles
+9d02f0b feat: i18n polish — incidents page titles, toasts, empty states
+0692598 feat: i18n foundation for all remaining pages — imports + t() + locale keys
+77c524b feat: assets page 10/10 — i18n, consistent table header, filter labels, delete toast
+162b0f7 fix: dashboard action buttons — custom styled, hover fill, proper icons
+04a0949 feat: dashboard 10/10 — i18n, quick actions, time context, remove console.error
+504ae47 feat: landing page ALL 10/10 — testimonial, responsive preview, preconnect, live demo badge
+8838547 feat: landing page perfect 10/10 — animated gradient, gradient hover, scroll-to-top
+98966e8 feat: landing page 10/10 — trust badges, security section, footer links, social proof
+79e1b33 refactor: ponytail audit — remove 17 dead items (unused APIs, dead code, imports, CSS)
+5e84d71 refactor: remove role CRUD UI — fixed 2 roles, over-engineered. ponytail clean.
+944346c fix: credential edit — highlight card + Batal button, password optional when editing
+
+═══════════════════════════════════════════════════════════════════════════
+✅ 20 most recent commits showing iterative development process
+═══════════════════════════════════════════════════════════════════════════
