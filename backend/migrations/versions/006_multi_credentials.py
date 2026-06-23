@@ -15,13 +15,26 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('asset_credentials', sa.Column('credential_type', sa.String(length=50), nullable=False, server_default='SSH'))
-    op.add_column('asset_credentials', sa.Column('username', sa.String(length=255), nullable=True))
-    op.add_column('asset_credentials', sa.Column('notes', sa.Text(), nullable=True))
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    columns = [c['name'] for c in inspector.get_columns('asset_credentials')]
+
+    if 'credential_type' not in columns:
+        op.add_column('asset_credentials', sa.Column('credential_type', sa.String(length=50), nullable=False, server_default='SSH'))
+    if 'username' not in columns:
+        op.add_column('asset_credentials', sa.Column('username', sa.String(length=255), nullable=True))
+    if 'notes' not in columns:
+        op.add_column('asset_credentials', sa.Column('notes', sa.Text(), nullable=True))
+
     # Drop unique constraint on asset_id (auto-named by MariaDB)
+    indexes = [i['name'] for i in inspector.get_indexes('asset_credentials')]
     with op.batch_alter_table('asset_credentials') as batch_op:
-        batch_op.drop_index('asset_id')
-        batch_op.create_index('ix_asset_credentials_asset', ['asset_id'])
+        # Create the non-unique index first so the foreign key constraint has a backing index
+        if 'ix_asset_credentials_asset' not in indexes:
+            batch_op.create_index('ix_asset_credentials_asset', ['asset_id'])
+        # Now drop the unique index
+        if 'asset_id' in indexes:
+            batch_op.drop_index('asset_id')
 
 
 def downgrade():
