@@ -44,9 +44,9 @@ services:
       DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://iams:iams_secret@mysql:3306/iams_db}
       JWT_SECRET: ${JWT_SECRET}
       AES_KEY_BASE64: ${AES_KEY_BASE64}
-      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-https://localhost}
       FLASK_ENV: ${FLASK_ENV:-production}
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
       COOKIE_SAMESITE: ${COOKIE_SAMESITE:-Lax}
       RATELIMIT_ENABLED: ${RATELIMIT_ENABLED:-true}
       RATELIMIT_STORAGE_URI: ${RATELIMIT_STORAGE_URI:-memory://}
@@ -75,7 +75,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5000/api}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
     container_name: iams_frontend
     restart: unless-stopped
     ports:
