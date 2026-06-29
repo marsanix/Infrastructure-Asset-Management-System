@@ -26,10 +26,10 @@ function confirm() {
   <Dialog
     :model-value="modelValue"
     :title="title"
-    :description="description"
     size="sm"
     @update:model-value="(v) => $emit('update:modelValue', v)"
   >
+    <p v-if="description" class="text-sm text-muted-foreground">{{ description }}</p>
     <slot />
     <template #footer>
       <Button variant="ghost" data-testid="confirm-dialog-cancel-btn" @click="cancel">{{ cancelText }}</Button>
