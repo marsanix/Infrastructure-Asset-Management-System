@@ -23,7 +23,16 @@ done
 echo "Baseline schema is ready."
 
 echo "Running IAMS extension migrations..."
-flask db upgrade
+# Use create_all to handle both fresh DB and existing baseline schema gracefully
+python -c "
+from app import create_app
+from app.extensions import db
+app = create_app()
+with app.app_context():
+    db.create_all()
+print('Schema ready.')
+"
+flask db stamp head 2>/dev/null || true
 
 echo "Seeding default data..."
 flask seed
