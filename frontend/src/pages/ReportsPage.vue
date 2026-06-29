@@ -10,6 +10,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import TableSkeleton from '@/components/ui/TableSkeleton.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 import { useUiStore } from '@/stores/ui'
 import { formatDateShort } from '@/lib/utils'
 
@@ -19,6 +20,8 @@ const { t } = useI18n()
 const loading = ref(true)
 const error = ref(null)
 const data = ref([])
+const page = ref(1)
+const pageSize = 10
 
 const warrantyRows = computed(() => {
   const now = new Date()
@@ -29,9 +32,15 @@ const warrantyRows = computed(() => {
   }).sort((a, b) => (a.remaining_days || Infinity) - (b.remaining_days || Infinity))
 })
 
+const pagedRows = computed(() => {
+  const s = (page.value - 1) * pageSize
+  return warrantyRows.value.slice(s, s + pageSize)
+})
+
 async function load() {
   loading.value = true
   error.value = null
+  page.value = 1
   try {
     const res = await apiClient.assetsWarrantyExpiring(months.value)
     data.value = res.data
@@ -132,7 +141,7 @@ async function exportCsv() {
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
-            <tr v-for="row in warrantyRows" :key="row.id" class="hover:bg-secondary/40" :data-testid="`warranty-row-${row.asset_tag}`">
+            <tr v-for="row in pagedRows" :key="row.id" class="hover:bg-secondary/40" :data-testid="`warranty-row-${row.asset_tag}`">
               <td class="px-4 py-3 font-medium">{{ row.asset_tag }}</td>
               <td class="px-4 py-3">{{ row.brand_name }} {{ row.model_name }}</td>
               <td class="px-4 py-3">{{ row.category_name }}</td>
@@ -147,6 +156,9 @@ async function exportCsv() {
             </tr>
           </tbody>
         </table>
+      </div>
+      <div v-if="!loading && !error && warrantyRows.length" class="border-t border-border p-3">
+        <Pagination :page="page" :page-size="pageSize" :total="warrantyRows.length" @update:page="(p) => page = p" />
       </div>
     </Card>
   </div>

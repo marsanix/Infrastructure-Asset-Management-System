@@ -32,7 +32,7 @@ const categoryFilter = ref('')
 const statusFilter = ref('')
 const locationFilter = ref('')
 const page = ref(1)
-const pageSize = 8
+const pageSize = 10
 
 const editOpen = ref(false)
 const detailItem = ref(null)

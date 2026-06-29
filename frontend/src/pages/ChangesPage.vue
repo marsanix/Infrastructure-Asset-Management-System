@@ -30,7 +30,7 @@ const statusFilter = ref('')
 const typeFilter = ref('')
 const riskFilter = ref('')
 const page = ref(1)
-const pageSize = 8
+const pageSize = 10
 
 const formOpen = ref(false)
 const formItem = ref(null)
@@ -61,13 +61,8 @@ const userOpts = computed(() => users.value.map(u => ({ label: u.name, value: St
 async function load() {
   loading.value = true; error.value = null
   try {
-    const params = {}
-    if (statusFilter.value) params.status = statusFilter.value
-    if (typeFilter.value) params.change_type = typeFilter.value
-    if (riskFilter.value) params.risk_level = riskFilter.value
-    if (search.value) params.search = search.value
     const [chgRes, assetRes, incRes, prbRes, reqRes, userRes] = await Promise.all([
-      apiClient.listChanges(params),
+      apiClient.listChanges({ per_page: 100 }),
       apiClient.listAssets().catch(() => ({ data: { data: [] } })),
       apiClient.listIncidents().catch(() => ({ data: { data: [] } })),
       apiClient.listProblems().catch(() => ({ data: { data: [] } })),
@@ -85,9 +80,22 @@ async function load() {
 }
 
 onMounted(() => load())
-watch([search, statusFilter, typeFilter, riskFilter], () => { page.value = 1; load() })
+watch([search, statusFilter, typeFilter, riskFilter], () => { page.value = 1 })
 
-const filtered = computed(() => data.value)
+const filtered = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  return data.value.filter((c) => {
+    if (statusFilter.value && c.status !== statusFilter.value) return false
+    if (typeFilter.value && c.change_type !== typeFilter.value) return false
+    if (riskFilter.value && c.risk_level !== riskFilter.value) return false
+    if (!q) return true
+    return (
+      (c.change_number || '').toLowerCase().includes(q) ||
+      (c.title || '').toLowerCase().includes(q) ||
+      (c.requester_name || '').toLowerCase().includes(q)
+    )
+  })
+})
 const paged = computed(() => {
   const start = (page.value - 1) * pageSize
   return filtered.value.slice(start, start + pageSize)
@@ -251,7 +259,7 @@ const typeLabel = (t) => ({ Standard: 'Standard', Normal: 'Normal', Emergency: '
             </tbody>
           </table>
         </div>
-        <Pagination v-if="filtered.length > pageSize" :model-value="page" :total="filtered.length" :per-page="pageSize" class="mt-3" @update:model-value="page = $event" />
+        <Pagination v-if="filtered.length > pageSize" :page="page" :page-size="pageSize" :total="filtered.length" class="mt-3" @update:page="(p) => page = p" />
       </template>
     </Card>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import apiClient from '@/services/apiClient'
 import Card from '@/components/ui/Card.vue'
@@ -12,6 +12,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import TableSkeleton from '@/components/ui/TableSkeleton.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 import UserFormDialog from '@/components/users/UserFormDialog.vue'
 import { useUiStore } from '@/stores/ui'
 import { formatDate } from '@/lib/utils'
@@ -25,6 +26,8 @@ const departments = ref([])
 const loading = ref(true)
 const error = ref(null)
 const query = ref('')
+const page = ref(1)
+const pageSize = 10
 
 const formOpen = ref(false)
 const formUser = ref(null)
@@ -61,6 +64,13 @@ const filtered = computed(() => {
   return data.value.filter((u) =>
     u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.role_name || '').toLowerCase().includes(q),
   )
+})
+
+watch(query, () => { page.value = 1 })
+
+const paged = computed(() => {
+  const s = (page.value - 1) * pageSize
+  return filtered.value.slice(s, s + pageSize)
 })
 
 function openCreate() { formUser.value = null; formOpen.value = true }
@@ -143,7 +153,7 @@ async function confirmDelete() {
             </tr>
           </thead>
           <tbody class="divide-y divide-border">
-            <tr v-for="u in filtered" :key="u.id" class="hover:bg-secondary/40" :data-testid="`user-row-${u.id}`">
+            <tr v-for="u in paged" :key="u.id" class="hover:bg-secondary/40" :data-testid="`user-row-${u.id}`">
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div class="h-9 w-9 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">{{ u.avatar }}</div>
@@ -169,6 +179,9 @@ async function confirmDelete() {
             </tr>
           </tbody>
         </table>
+      </div>
+      <div v-if="!loading && !error && filtered.length" class="border-t border-border p-3">
+        <Pagination :page="page" :page-size="pageSize" :total="filtered.length" @update:page="(p) => page = p" />
       </div>
     </Card>
 

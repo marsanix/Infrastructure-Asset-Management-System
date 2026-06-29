@@ -29,7 +29,7 @@ const statusFilter = ref('')
 const priorityFilter = ref('')
 const typeFilter = ref('')
 const page = ref(1)
-const pageSize = 8
+const pageSize = 10
 
 const formOpen = ref(false)
 const formItem = ref(null)
@@ -57,13 +57,8 @@ async function load() {
   loading.value = true
   error.value = null
   try {
-    const params = {}
-    if (statusFilter.value) params.status = statusFilter.value
-    if (priorityFilter.value) params.priority = priorityFilter.value
-    if (typeFilter.value) params.request_type = typeFilter.value
-    if (search.value) params.search = search.value
     const [reqRes, assetRes, deptRes, userRes] = await Promise.all([
-      apiClient.listRequests(params),
+      apiClient.listRequests({ per_page: 100 }),
       apiClient.listAssets().catch(() => ({ data: { data: [] } })),
       apiClient.listDepartments().catch(() => ({ data: { data: [] } })),
       isAdmin.value ? apiClient.listUsers().catch(() => ({ data: { data: [] } })) : Promise.resolve({ data: { data: [] } }),
@@ -80,9 +75,22 @@ async function load() {
 }
 
 onMounted(() => load())
-watch([search, statusFilter, priorityFilter, typeFilter], () => { page.value = 1; load() })
+watch([search, statusFilter, priorityFilter, typeFilter], () => { page.value = 1 })
 
-const filtered = computed(() => data.value)
+const filtered = computed(() => {
+  const q = search.value.trim().toLowerCase()
+  return data.value.filter((r) => {
+    if (statusFilter.value && r.status !== statusFilter.value) return false
+    if (priorityFilter.value && r.priority !== priorityFilter.value) return false
+    if (typeFilter.value && r.request_type !== typeFilter.value) return false
+    if (!q) return true
+    return (
+      (r.request_number || '').toLowerCase().includes(q) ||
+      (r.title || '').toLowerCase().includes(q) ||
+      (r.requester_name || '').toLowerCase().includes(q)
+    )
+  })
+})
 
 const paged = computed(() => {
   const start = (page.value - 1) * pageSize
@@ -230,7 +238,7 @@ const typeLabel = (t) => ({ 'Asset Request': 'Aset', 'Repair Request': 'Perbaika
             </tbody>
           </table>
         </div>
-        <Pagination v-if="filtered.length > pageSize" :model-value="page" :total="filtered.length" :per-page="pageSize" class="mt-3" @update:model-value="page = $event" />
+        <Pagination v-if="filtered.length > pageSize" :page="page" :page-size="pageSize" :total="filtered.length" class="mt-3" @update:page="(p) => page = p" />
       </template>
     </Card>
 

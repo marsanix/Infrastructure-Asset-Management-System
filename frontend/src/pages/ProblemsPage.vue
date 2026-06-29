@@ -31,7 +31,7 @@ const query = ref('')
 const priorityFilter = ref('')
 const statusFilter = ref('')
 const page = ref(1)
-const pageSize = 8
+const pageSize = 10
 
 const detailOpen = ref(false)
 const detailItem = ref(null)

@@ -128,7 +128,7 @@ const paged = computed(() => { const s = (page.value - 1) * pageSize; return fil
           </td>
           <td class="py-1.5 px-2">{{ l.seats }}</td><td class="py-1.5 px-2">{{ l.expiration_date || '-' }}</td><td class="py-1.5 px-2"><div class="flex gap-1"><Button variant="ghost" size="xs" @click="openEdit(l)">Edit</Button><Button variant="ghost" size="xs" class="text-destructive" :data-testid="`license-delete-${l.id}`" @click="askDelete(l)">Hapus</Button></div></td></tr></tbody></table>
       </div>
-      <Pagination v-if="filtered.length > pageSize" :model-value="page" :total="filtered.length" :per-page="pageSize" class="mt-3" @update:model-value="page = $event" />
+      <Pagination v-if="filtered.length > pageSize" :page="page" :page-size="pageSize" :total="filtered.length" class="mt-3" @update:page="(p) => page = p" />
     </Card>
 
     <Dialog :model-value="formOpen" :title="isEdit ? 'Edit Lisensi' : 'Tambah Lisensi'" compact @update:model-value="formOpen=$event">

@@ -300,7 +300,7 @@ const categoryOpts = computed(() => categories.value.map(c => ({ label: c.name, 
             </tbody>
           </table>
         </div>
-        <Pagination v-if="filtered.length > pageSize" :model-value="page" :total="filtered.length" :per-page="pageSize" class="mt-3" @update:model-value="page = $event" />
+        <Pagination v-if="filtered.length > pageSize" :page="page" :page-size="pageSize" :total="filtered.length" class="mt-3" @update:page="(p) => page = p" />
       </template>
     </Card>
 
